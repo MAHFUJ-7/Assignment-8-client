@@ -13,12 +13,20 @@ import {
 } from "@heroui/react";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
-import { Eye, EyeOff, Gift, Lock, Mail, TreePine, User, Waves } from "lucide-react";
+import { Eye, EyeOff, Gift, Image, Lock, Mail, TreePine, User, Waves } from "lucide-react";
 
 const INPUT =
-    "h-10 w-full rounded-xl border border-white/[0.08] bg-[#0b100d] pl-9 pr-4 text-[13px] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] placeholder:text-white/25 transition-colors duration-200 hover:border-white/[0.14] focus:border-emerald-400/35 focus:bg-[#0d130f] focus:outline-none";
+    "h-11 w-full rounded-xl border border-white/[0.08] bg-[#0b100d] pl-10 pr-4 text-[14px] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] placeholder:text-white/25 transition-colors duration-200 hover:border-white/[0.14] focus:border-emerald-400/35 focus:bg-[#0d130f] focus:outline-none";
 
-const LABEL = "text-[12px] font-medium text-white/60";
+const LABEL = "text-[13px] font-medium text-white/60";
+const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/;
+
+const validatePassword = (value) => {
+    if (value.length < 6) return "Password must be at least 6 characters.";
+    if (!/[a-z]/.test(value)) return "Password must include a lowercase letter.";
+    if (!/[A-Z]/.test(value)) return "Password must include an uppercase letter.";
+    return null;
+};
 
 const EVENT_CARDS = [
     {
@@ -52,11 +60,24 @@ export default function SignUpPage() {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const data = Object.fromEntries(formData.entries());
+        const passwordValue = String(data.password);
+        const confirmPasswordValue = String(data.confirmPassword);
+
+        if (!PASSWORD_RULE.test(passwordValue)) {
+            toast.error("Password must be at least 6 characters and include uppercase and lowercase letters.");
+            return;
+        }
+
+        if (passwordValue !== confirmPasswordValue) {
+            toast.error("Passwords don't match.");
+            return;
+        }
 
         const { error } = await signUp.email({
             name: String(data.name),
             email: String(data.email),
-            password: String(data.password),
+            password: passwordValue,
+            image: String(data.image || ""),
         });
         if (error) {
             toast.error(error.message || "Couldn't create your account. Try again.");
@@ -192,15 +213,15 @@ export default function SignUpPage() {
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#f5a623]/80">
                             Create account
                         </p>
-                        <h1 className="mt-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-white sm:text-[30px]">
+                        <h1 className="mt-2 text-[30px] font-semibold leading-tight tracking-[-0.02em] text-white sm:text-[32px]">
                             Create your account
                         </h1>
-                        <p className="mt-1.5 text-[13px] text-white/45">
+                        <p className="mt-1.5 text-[14px] text-white/45">
                             Free forever — 4.8k+ volunteers already in.
                         </p>
 
-                        <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_40px_80px_-30px_rgba(0,0,0,0.6)] sm:p-6">
-                            <Form className="flex flex-col gap-3.5" onSubmit={onSubmit}>
+                        <div className="mt-0 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_40px_80px_-30px_rgba(0,0,0,0.6)] sm:p-6">
+                            <Form className="flex flex-col gap-4" onSubmit={onSubmit}>
                                 <TextField isRequired name="name" type="text" autoComplete="name">
                                     <Label className={LABEL}>Full name</Label>
                                     <div className="relative mt-1.5">
@@ -239,19 +260,37 @@ export default function SignUpPage() {
                                 </TextField>
 
                                 <TextField
+                                    name="image"
+                                    type="url"
+                                    autoComplete="url"
+                                    validate={(value) => {
+                                        if (value && !/^https?:\/\/\S+$/i.test(value)) {
+                                            return "Please enter a valid photo URL.";
+                                        }
+                                        return null;
+                                    }}
+                                >
+                                    <Label className={LABEL}>Photo URL</Label>
+                                    <div className="relative mt-1.5">
+                                        <Image
+                                            aria-hidden="true"
+                                            strokeWidth={1.5}
+                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-white/30"
+                                        />
+                                        <Input placeholder="https://example.com/photo.jpg" className={INPUT} />
+                                    </div>
+                                    <FieldError className="mt-1.5 text-[11px] text-red-400" />
+                                </TextField>
+
+                                <TextField
                                     isRequired
                                     name="password"
-                                    minLength={8}
+                                    minLength={6}
                                     type={showPassword ? "text" : "password"}
                                     autoComplete="new-password"
                                     value={password}
                                     onChange={setPassword}
-                                    validate={(value) => {
-                                        if (value.length < 8) {
-                                            return "Password must be at least 8 characters.";
-                                        }
-                                        return null;
-                                    }}
+                                    validate={validatePassword}
                                 >
                                     <Label className={LABEL}>Password</Label>
                                     <div className="relative mt-1.5">
@@ -260,7 +299,7 @@ export default function SignUpPage() {
                                             strokeWidth={1.5}
                                             className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-white/30"
                                         />
-                                        <Input placeholder="Min. 8 characters" className={`${INPUT} pr-10`} />
+                                        <Input placeholder="Min. 6 characters, upper & lowercase" className={`${INPUT} pr-10`} />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword((v) => !v)}
@@ -317,7 +356,7 @@ export default function SignUpPage() {
 
                                 <Button
                                     type="submit"
-                                    className="mt-1 h-10 w-full rounded-xl bg-[#f5a623] text-[13px] font-semibold text-[#1f1402] transition hover:bg-[#ffb238] active:scale-[0.99]"
+                                    className="mt-1 h-11 w-full rounded-xl bg-[#f5a623] text-[14px] font-semibold text-[#1f1402] transition hover:bg-[#ffb238] active:scale-[0.99]"
                                 >
                                     Create account
                                 </Button>
@@ -334,7 +373,7 @@ export default function SignUpPage() {
                             <Button
                                 type="button"
                                 onClick={handleSignUpGoogle}
-                                className="flex h-10 w-full items-center justify-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-[13px] font-medium text-white/80 transition hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-white"
+                                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-[14px] font-medium text-white/80 transition hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-white"
                             >
                                 <FcGoogle size={16} />
                                 Continue with Google

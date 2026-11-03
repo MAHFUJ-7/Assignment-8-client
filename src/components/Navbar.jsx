@@ -1,15 +1,28 @@
 "use client";
 
+import { CiCircleCheck, CiCirclePlus, CiSettings } from "react-icons/ci";
 import Link from "next/link";
 import { useState } from "react";
 import { Contrast, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client"
+import {
+  Popover,
+  PopoverContent,
+  PopoverDescription,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Button } from "@base-ui/react";
+
 
 export default function Navbar() {
-  // <html> ships with the `dark` class (see src/app/layout.js), so the page opens in dark mode.
+
+  const { data: session } = authClient.useSession()
+
   const [dark, setDark] = useState(true);
-  const { data: session } = useSession();
   const user = session?.user ?? null;
 
   const toggleTheme = () => {
@@ -17,6 +30,7 @@ export default function Navbar() {
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
   };
+  console.log("User in Navbar:", user);
 
   const initial = (user?.name ?? "U").charAt(0).toUpperCase();
 
@@ -53,12 +67,51 @@ export default function Navbar() {
               <Contrast className="size-5" />
             </button>
 
-            <Avatar size="lg">
-              <AvatarImage src={user.image ?? undefined} alt={user.name} />
+            {/* <Avatar size="lg">
+              <AvatarImage src={user?.name} alt={user?.name} />
               <AvatarFallback>
                 <User className="size-4" />
               </AvatarFallback>
-            </Avatar>
+            </Avatar> */}
+
+            <Popover>
+              <PopoverTrigger render={<Button variant="outline" />}>
+                <span className="text-[15px] font-medium text-white/90 transition hover:text-white">
+                  {user?.name ?? "User"}
+                </span>
+              </PopoverTrigger>
+              <PopoverContent>
+                <PopoverHeader>
+                  <PopoverTitle className="text-2xl font-bold text-white/90">
+                    {user?.name ?? "User"}
+                  </PopoverTitle>
+                  <PopoverDescription>
+                    <div className="text-[13px] text-white/80 m-1">
+                    <p className=" text-white/80">
+                      {user?.email ?? "No email available"}
+                    </p>
+
+                    <Link href="/create_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
+                      <CiCirclePlus />Create Event
+                    </Link>
+
+                    <Link href="/create_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
+                      <CiSettings />Manage Events
+                    </Link>
+
+                    <Link href="/create_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
+                      <CiCircleCheck />Joined Events
+                    </Link>
+
+
+                    <Button variant="destructive" onClick={() => signOut()} className="rounded-md text-xl mt-2 w-full bg-red-100 text-red-500 hover:bg-red-600 hover:text-white">
+                      Logout
+                    </Button>
+                    </div>
+                  </PopoverDescription>
+                </PopoverHeader>
+              </PopoverContent>
+            </Popover>
 
             <button
               type="button"
