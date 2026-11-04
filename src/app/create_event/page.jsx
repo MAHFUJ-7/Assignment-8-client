@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { toast } from "@heroui/react";
+import { toast } from "react-toastify";
 import {
   CalendarDays,
   CheckCircle2,
@@ -151,6 +151,7 @@ export default function CreateEventForm({
     displayName: session?.user?.name ?? "SevaConnect User",
     email: session?.user?.email ?? "No email available",
   };
+
   const [values, setValues] = useState(INITIAL_VALUES);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -175,6 +176,7 @@ export default function CreateEventForm({
     setErrors(validate(values));
   };
 
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const foundErrors = validate(values);
@@ -198,27 +200,26 @@ export default function CreateEventForm({
       createdAt: new Date().toISOString(),
     };
 
-    try {
-      setSubmitting(true);
-      if (onSubmit) await onSubmit(payload);
-      toast.success("Event created successfully.");
-      setValues(INITIAL_VALUES);
-      setErrors({});
-      setTouched({});
-    } catch (error) {
-      toast.error(error?.message || "Could not create the event. Try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    console.log("payload", payload);
+
+    // const result = await fetch(`${process.env.PUBLIC_SERVER_URL}/create - event`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // })
+
+
   };
 
   const error = (name) => (touched[name] ? errors[name] : undefined);
   const previewDate = values.date
     ? new Date(`${values.date}T00:00`).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : "Date";
 
   return (
@@ -279,9 +280,8 @@ export default function CreateEventForm({
                         onBlur={() => markTouched("description")}
                         placeholder="What will volunteers do? Who benefits? What should they bring?"
                         aria-invalid={Boolean(error("description"))}
-                        className={`${INPUT_CLASS} h-auto resize-none leading-relaxed ${
-                          error("description") ? "border-destructive" : "border-input"
-                        }`}
+                        className={`${INPUT_CLASS} h-auto resize-none leading-relaxed ${error("description") ? "border-destructive" : "border-input"
+                          }`}
                       />
                       <p className="mt-1 text-right text-xs text-muted-foreground">
                         {values.description.length}/{DESCRIPTION_MAX}
@@ -305,17 +305,16 @@ export default function CreateEventForm({
                                 updateValue("type", type.value);
                                 setTouched((current) => ({ ...current, type: true }));
                               }}
-                              className={`h-auto min-h-24 flex-col gap-2 rounded-xl px-2 py-3 text-xs ${
-                                active
+                              className={`h-auto min-h-24 flex-col gap-2 rounded-xl px-2 py-3 text-xs ${active
                                   ? amber
                                     ? "border-amber-500 bg-amber-500/10 text-amber-600"
                                     : blue
                                       ? "border-sky-500 bg-sky-500/10 text-sky-600"
                                       : orange
                                         ? "border-orange-500 bg-orange-500/10 text-orange-600"
-                                    : "border-primary bg-primary/10 text-primary"
+                                        : "border-primary bg-primary/10 text-primary"
                                   : ""
-                              }`}
+                                }`}
                             >
                               <span className="text-xl" aria-hidden="true">{type.icon}</span>
                               {type.value}
