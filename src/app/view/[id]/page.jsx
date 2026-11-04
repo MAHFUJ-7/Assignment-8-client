@@ -115,17 +115,17 @@ export default function EventViewPage() {
       setSubmitting(true);
 
       // TODO: Connect with backend manually:
-      if (!isJoined) {
-        await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/join`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ eventId: id, userEmail: session?.user?.email }), 
-        });
-      } else {
-        await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/leave`, {
-          method: "DELETE",
-        });
-      }
+    //   if (!isJoined) {
+    //     await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/join`, {
+    //       method: "POST",
+    //       headers: { "Content-Type": "application/json" },
+    //       body: JSON.stringify({ eventId: id, userEmail: session?.user?.email }), 
+    //     });
+    //   } else {
+    //     await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/leave`, {
+    //       method: "DELETE",
+    //     });
+    //   }
 
       const nextState = !isJoined;
       setIsJoined(nextState);
