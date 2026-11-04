@@ -1,6 +1,5 @@
 "use client";
-
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   CalendarDays,
@@ -12,14 +11,15 @@ import {
   MapPin,
   Phone,
   Plus,
+  RefreshCw,
   Search,
   Trash2,
   Users,
   X,
   CheckCircle2,
   AlertTriangle,
+  ImageIcon,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,78 +32,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 
-// Initial sample events matching the exact schema from create_event
-const SAMPLE_EVENTS = [
-  {
-    id: "evt-1",
-    title: "Blanket Distribution for the Needy",
-    description:
-      "Join our winter relief initiative distributing warm blankets and winter wear to underprivileged families and rough sleepers across Mohammadpur.",
-    type: "Winter Relief",
-    date: "2026-11-20",
-    time: "09:00",
-    thumbnail:
-      "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80",
-    location: "Mohammadpur Town Hall, Dhaka",
-    volunteersNeeded: 50,
-    contactPhone: "+880 1712-345678",
-    organizerName: "Rahim Uddin",
-    organizerEmail: "rahim@mail.com",
-    createdAt: "2026-11-01T10:00:00.000Z",
-  },
-  {
-    id: "evt-2",
-    title: "Buriganga Riverside Mega Cleanup",
-    description:
-      "Help restore the natural beauty of the Buriganga riverbank. We will provide trash bags, gloves, safety gear, and refreshments for all volunteers.",
-    type: "Cleanup",
-    date: "2026-11-25",
-    time: "08:00",
-    thumbnail:
-      "https://images.unsplash.com/photo-1618477461853-cf6ed80faba5?auto=format&fit=crop&w=800&q=80",
-    location: "Sadarghat Launch Terminal, Dhaka",
-    volunteersNeeded: 120,
-    contactPhone: "+880 1819-876543",
-    organizerName: "Rahim Uddin",
-    organizerEmail: "rahim@mail.com",
-    createdAt: "2026-11-02T14:30:00.000Z",
-  },
-  {
-    id: "evt-3",
-    title: "Urban Tree Plantation Campaign",
-    description:
-      "Planting 500 fruit and shade trees along school perimeters and public walkways to enhance greenery and combat urban heat islands.",
-    type: "Plantation",
-    date: "2026-12-05",
-    time: "10:30",
-    thumbnail:
-      "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80",
-    location: "Dhanmondi Lake Park, Dhaka",
-    volunteersNeeded: 35,
-    contactPhone: "+880 1911-223344",
-    organizerName: "Rahim Uddin",
-    organizerEmail: "rahim@mail.com",
-    createdAt: "2026-11-03T09:15:00.000Z",
-  },
-  {
-    id: "evt-4",
-    title: "Free Community Health & Eye Camp",
-    description:
-      "Providing free primary healthcare checkups, blood sugar screenings, and eye examinations with certified medical practitioners.",
-    type: "Health Camp",
-    date: "2026-12-12",
-    time: "09:00",
-    thumbnail:
-      "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80",
-    location: "Mirpur 10 Community Center, Dhaka",
-    volunteersNeeded: 25,
-    contactPhone: "+880 1610-998877",
-    organizerName: "Rahim Uddin",
-    organizerEmail: "rahim@mail.com",
-    createdAt: "2026-11-03T18:00:00.000Z",
-  },
-];
-
 const TYPE_TONES = {
   Cleanup: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
   Plantation: "bg-green-500/15 text-green-600 dark:text-green-400 border-green-500/20",
@@ -114,9 +42,67 @@ const TYPE_TONES = {
   "Food Drive": "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/20",
 };
 
+const formatDate = (dateStr) => {
+  if (!dateStr) return "Date TBD";
+  const parsed = new Date(dateStr.includes("T") ? dateStr : `${dateStr}T00:00`);
+  return isNaN(parsed.getTime())
+    ? dateStr
+    : parsed.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+};
+
+/* ───────── Dedicated Thumbnail with Safe Fallback ───────── */
+function EventThumbnail({ src, alt, type, toneClass }) {
+  const [loadError, setLoadError] = useState(false);
+
+  return (
+    <div className="relative aspect-video w-full overflow-hidden bg-muted/60">
+      {src && !loadError ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt || "Event cover"}
+          className="size-full object-cover transition duration-300 group-hover:scale-105"
+          onError={() => setLoadError(true)}
+        />
+      ) : (
+        <div className="flex size-full flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-muted/80 to-muted/40 p-4 text-center text-muted-foreground">
+          <ImageIcon className="size-8 opacity-50" />
+          <span className="text-xs font-semibold text-foreground/80">
+            {src ? "Cover image unavailable" : "No image provided"}
+          </span>
+          {src && (
+            <span className="max-w-[240px] truncate text-[10px] text-muted-foreground/70 font-mono">
+              {src}
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+
+      {type && (
+        <span
+          className={`absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-md ${toneClass}`}
+        >
+          <span className="size-1.5 rounded-full bg-current" />
+          {type}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function ManageEventsPage() {
   const { data: session } = authClient.useSession();
-  const [events, setEvents] = useState(SAMPLE_EVENTS);
+  const userEmail = session?.user?.email;
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("All");
 
@@ -126,72 +112,135 @@ export default function ManageEventsPage() {
   const [statusMessage, setStatusMessage] = useState(null);
 
   const currentUser = {
-    displayName: session?.user?.name || "Organizer",
-    email: session?.user?.email || "rahim@mail.com",
+    displayName: session?.user?.name || "MD MAHFUJ",
+    email: session?.user?.email || "crazymahfuj1@gmail.com",
   };
 
-  // Filter types list
+  /* ───────── Fetch from Backend ───────── */
+  const fetchEvents = useCallback(async () => {
+    if (!userEmail) {
+      setEvents([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events?email=${encodeURIComponent(userEmail)}`
+      );
+
+      if (!res.ok) {
+        throw new Error(`Failed to load events (${res.status})`);
+      }
+
+      const data = await res.json();
+      setEvents(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching events:", err);
+      setError(err?.message || "Could not retrieve events from the server.");
+    } finally {
+      setLoading(false);
+    }
+  }, [userEmail]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  // Filter events: Prioritize logged-in user's events if available
+  const userEvents = useMemo(() => {
+    const userEmail = session?.user?.email?.toLowerCase() || currentUser.email.toLowerCase();
+    const mine = events.filter(
+      (e) => e.organizerEmail?.toLowerCase() === userEmail
+    );
+    // If matching user events exist, show only those; otherwise show all fetched events
+    return mine.length > 0 ? mine : events;
+  }, [events, session, currentUser.email]);
+
+  // Available event types derived dynamically from actual data
   const filterTypes = useMemo(() => {
-    const types = new Set(events.map((e) => e.type));
+    const types = new Set(userEvents.map((e) => e.type).filter(Boolean));
     return ["All", ...Array.from(types)];
-  }, [events]);
+  }, [userEvents]);
 
-  // Filtered events
+  // Search & category filtered events
   const filteredEvents = useMemo(() => {
-    return events.filter((evt) => {
-      const matchSearch =
-        evt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        evt.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        evt.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchType = selectedType === "All" || evt.type === selectedType;
-      return matchSearch && matchType;
+    const query = searchQuery.trim().toLowerCase();
+    return userEvents.filter((evt) => {
+      const titleMatch = evt.title?.toLowerCase().includes(query) ?? false;
+      const locMatch = evt.location?.toLowerCase().includes(query) ?? false;
+      const descMatch = evt.description?.toLowerCase().includes(query) ?? false;
+      const typeMatch = selectedType === "All" || evt.type === selectedType;
+
+      return (titleMatch || locMatch || descMatch) && typeMatch;
     });
-  }, [events, searchQuery, selectedType]);
+  }, [userEvents, searchQuery, selectedType]);
 
-  // Total stats
+  // Summary statistics
   const totalVolunteers = useMemo(() => {
-    return events.reduce((sum, e) => sum + (Number(e.volunteersNeeded) || 0), 0);
-  }, [events]);
+    return userEvents.reduce((sum, e) => sum + (Number(e.volunteersNeeded) || 0), 0);
+  }, [userEvents]);
 
-  /* ───────── Backend sample action handlers ───────── */
+  /* ───────── Action Handlers ───────── */
 
-  // 1. Edit Event (Open editor)
   const handleEdit = (event) => {
     setEditingEvent({ ...event });
   };
 
-  // Save Edit Handler
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     if (!editingEvent) return;
 
-    // TODO: Connect with backend manually:
-    // await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/events/${editingEvent.id}`, {
+    const editId = editingEvent._id || editingEvent.id;
+
+    // await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${editId}`, {
     //   method: "PUT",
     //   headers: { "Content-Type": "application/json" },
     //   body: JSON.stringify(editingEvent),
     // });
+    console.log("Editing event payload:", editingEvent);
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${editId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(editingEvent),
+    });
 
     setEvents((prev) =>
-      prev.map((item) => (item.id === editingEvent.id ? editingEvent : item))
+      prev.map((item) =>
+        (item._id || item.id) === editId ? editingEvent : item
+      )
     );
     showNotice(`Event "${editingEvent.title}" updated successfully!`);
     setEditingEvent(null);
   };
 
-  // 3. Delete Event
   const confirmDelete = async () => {
     if (!deletingEventId) return;
 
-    // TODO: Connect with backend manually:
-    // await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/events/${deletingEventId}`, {
-    //   method: "DELETE",
-    // });
+    const deleted = events.find(
+      (e) => (e._id || e.id) === deletingEventId
+    );
 
-    const deleted = events.find((e) => e.id === deletingEventId);
-    setEvents((prev) => prev.filter((item) => item.id !== deletingEventId));
-    showNotice(`Event "${deleted?.title || "Event"}" has been deleted.`);
-    setDeletingEventId(null);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${deletingEventId}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Could not delete the event.");
+      }
+
+      setEvents((prev) =>
+        prev.filter((item) => (item._id || item.id) !== deletingEventId)
+      );
+      showNotice(`Event "${deleted?.title || "Event"}" has been deleted.`);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setDeletingEventId(null);
+    }
   };
 
   const showNotice = (msg) => {
@@ -221,12 +270,25 @@ export default function ManageEventsPage() {
               Manage Your Events
             </h1>
             <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-              Track, review, modify, or remove social service events organized by{" "}
-              <span className="font-semibold text-foreground">{currentUser.displayName}</span>.
+              Showing events organized by{" "}
+              <span className="font-semibold text-foreground">
+                {currentUser.displayName}
+              </span>{" "}
+              ({currentUser.email}).
             </p>
           </div>
 
           <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={fetchEvents}
+              disabled={loading}
+              title="Refresh events"
+              className="h-11 w-11 rounded-full"
+            >
+              <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} />
+            </Button>
             <Link href="/create_event">
               <Button className="h-11 gap-2 rounded-full px-6 font-semibold shadow-md">
                 <Plus className="size-4" />
@@ -240,13 +302,13 @@ export default function ManageEventsPage() {
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
             <CardContent className="p-5">
-              <div className="text-2xl font-bold">{events.length}</div>
+              <div className="text-2xl font-bold">{userEvents.length}</div>
               <div className="mt-1 text-xs text-muted-foreground">Total Events</div>
             </CardContent>
           </Card>
           <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
             <CardContent className="p-5">
-              <div className="text-2xl font-bold text-emerald-500">{events.length}</div>
+              <div className="text-2xl font-bold text-emerald-500">{userEvents.length}</div>
               <div className="mt-1 text-xs text-muted-foreground">Active & Upcoming</div>
             </CardContent>
           </Card>
@@ -258,7 +320,9 @@ export default function ManageEventsPage() {
           </Card>
           <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
             <CardContent className="p-5">
-              <div className="text-2xl font-bold text-sky-500">{filterTypes.length - 1}</div>
+              <div className="text-2xl font-bold text-sky-500">
+                {filterTypes.length > 1 ? filterTypes.length - 1 : 0}
+              </div>
               <div className="mt-1 text-xs text-muted-foreground">Event Categories</div>
             </CardContent>
           </Card>
@@ -285,11 +349,10 @@ export default function ManageEventsPage() {
                 key={type}
                 type="button"
                 onClick={() => setSelectedType(type)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                  selectedType === type
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${selectedType === type
                     ? "bg-primary text-primary-foreground font-semibold shadow-sm"
                     : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
+                  }`}
               >
                 {type}
               </button>
@@ -297,8 +360,44 @@ export default function ManageEventsPage() {
           </div>
         </div>
 
-        {/* Events Grid */}
-        {filteredEvents.length === 0 ? (
+        {/* Loading State Skeleton */}
+        {loading && (
+          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3].map((n) => (
+              <Card key={n} className="overflow-hidden rounded-2xl border-border/60 bg-card animate-pulse">
+                <div className="aspect-video w-full bg-muted" />
+                <div className="space-y-3 p-5">
+                  <div className="h-4 w-1/3 rounded bg-muted" />
+                  <div className="h-6 w-3/4 rounded bg-muted" />
+                  <div className="h-4 w-full rounded bg-muted" />
+                  <div className="h-4 w-2/3 rounded bg-muted" />
+                  <div className="mt-4 flex gap-2 pt-2">
+                    <div className="h-9 flex-1 rounded-xl bg-muted" />
+                    <div className="h-9 flex-1 rounded-xl bg-muted" />
+                    <div className="h-9 flex-1 rounded-xl bg-muted" />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Error State */}
+        {!loading && error && (
+          <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-destructive/30 bg-destructive/5 p-12 text-center">
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-destructive/15 text-destructive">
+              <AlertTriangle className="size-7" />
+            </div>
+            <h3 className="mt-4 text-lg font-bold">Failed to load events</h3>
+            <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">{error}</p>
+            <Button onClick={fetchEvents} className="mt-5 rounded-full" variant="outline">
+              <RefreshCw className="mr-2 size-4" /> Try Again
+            </Button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && !error && filteredEvents.length === 0 && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
               <Layers className="size-7" />
@@ -306,60 +405,51 @@ export default function ManageEventsPage() {
             <h3 className="mt-4 text-lg font-bold">No events found</h3>
             <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">
               {searchQuery || selectedType !== "All"
-                ? "Try adjusting your search criteria or filter to see more events."
-                : "You haven't created any events yet. Get started by creating your first event!"}
+                ? "Try adjusting your search query or category filter."
+                : "No events are recorded for your account yet. Create your first event!"}
             </p>
             <Link href="/create_event" className="mt-5">
               <Button className="rounded-full">Create an Event</Button>
             </Link>
           </div>
-        ) : (
+        )}
+
+        {/* Events Grid */}
+        {!loading && !error && filteredEvents.length > 0 && (
           <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredEvents.map((event) => {
+              const eventId = event._id || event.id;
               const toneClass =
                 TYPE_TONES[event.type] || "bg-muted text-foreground border-border";
 
               return (
                 <Card
-                  key={event.id}
+                  key={eventId}
                   className="group flex flex-col overflow-hidden rounded-2xl border-border/70 bg-card transition duration-200 hover:border-primary/40 hover:shadow-xl"
                 >
-                  {/* Thumbnail / Image with Type Badge */}
-                  <div className="relative aspect-video w-full overflow-hidden bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={event.thumbnail}
-                      alt={event.title}
-                      className="size-full object-cover transition duration-300 group-hover:scale-105"
-                      onError={(e) => {
-                        e.currentTarget.src =
-                          "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80";
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <span
-                      className={`absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-md ${toneClass}`}
-                    >
-                      <span className="size-1.5 rounded-full bg-current" />
-                      {event.type}
-                    </span>
-                  </div>
+                  {/* Event Thumbnail with Safe Fallback */}
+                  <EventThumbnail
+                    src={event.thumbnail}
+                    alt={event.title}
+                    type={event.type}
+                    toneClass={toneClass}
+                  />
 
                   <CardHeader className="p-5 pb-3">
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <CalendarDays className="size-3.5 text-primary" />
-                        {new Date(event.date + "T00:00").toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
+                        {formatDate(event.date)}
                       </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Clock3 className="size-3.5 text-primary" />
-                        {event.time}
-                      </span>
+                      {event.time && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1">
+                            <Clock3 className="size-3.5 text-primary" />
+                            {event.time}
+                          </span>
+                        </>
+                      )}
                     </div>
                     <CardTitle className="mt-2 line-clamp-1 text-lg font-bold">
                       {event.title}
@@ -372,33 +462,49 @@ export default function ManageEventsPage() {
                   <CardContent className="space-y-2 p-5 pt-0 text-xs text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <MapPin className="size-3.5 shrink-0 text-primary" />
-                      <span className="line-clamp-1">{event.location}</span>
+                      <span className="line-clamp-1">
+                        {event.location || "Location not specified"}
+                      </span>
                     </div>
+
                     <div className="flex items-center justify-between pt-1">
                       <span className="flex items-center gap-1.5 font-medium text-foreground">
                         <Users className="size-3.5 text-primary" />
-                        {event.volunteersNeeded || "Open"} Volunteers Needed
+                        {event.volunteersNeeded
+                          ? `${event.volunteersNeeded} Volunteers Needed`
+                          : "Open Volunteers"}
                       </span>
-                      {event.contactPhone && (
+                      {event.contactPhone ? (
                         <span className="flex items-center gap-1 text-[11px]">
                           <Phone className="size-3" />
                           {event.contactPhone}
                         </span>
-                      )}
+                      ) : null}
                     </div>
+
+                    {(event.organizerName || event.organizerEmail) && (
+                      <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 text-[11px] text-muted-foreground">
+                        <span>
+                          By: <strong className="text-foreground">{event.organizerName}</strong>
+                        </span>
+                        <span className="truncate max-w-[150px]">{event.organizerEmail}</span>
+                      </div>
+                    )}
                   </CardContent>
 
                   {/* Actions Footer */}
                   <CardFooter className="mt-auto grid grid-cols-3 gap-2 border-t border-border/60 bg-muted/20 p-3">
                     {/* 1. View Button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-9 gap-1.5 rounded-xl text-xs hover:border-primary/50"
-                    >
-                      <Eye className="size-3.5 text-sky-500" />
-                      View
-                    </Button>
+                    <Link href={`/view/${eventId}`}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-9 gap-1.5 rounded-xl text-xs hover:border-primary/50"
+                      >
+                        <Eye className="size-3.5 text-sky-500" />
+                        View
+                      </Button>
+                    </Link>
 
                     {/* 2. Edit Button */}
                     <Button
@@ -415,7 +521,7 @@ export default function ManageEventsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setDeletingEventId(event.id)}
+                      onClick={() => setDeletingEventId(eventId)}
                       className="h-9 gap-1.5 rounded-xl text-xs text-destructive hover:bg-destructive/10 hover:border-destructive/50"
                     >
                       <Trash2 className="size-3.5 text-destructive" />
@@ -428,86 +534,6 @@ export default function ManageEventsPage() {
           </div>
         )}
       </div>
-
-      {/* ───────────────── VIEW EVENT MODAL ───────────────── */}
-      {viewingEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-border bg-card p-6 shadow-2xl md:p-8">
-            <button
-              type="button"
-              onClick={() => setViewingEvent(null)}
-              className="absolute right-5 top-5 rounded-full p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <X className="size-5" />
-            </button>
-
-            <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-muted">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={viewingEvent.thumbnail}
-                alt={viewingEvent.title}
-                className="size-full object-cover"
-              />
-              <span className="absolute left-3 top-3 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
-                {viewingEvent.type}
-              </span>
-            </div>
-
-            <div className="mt-5 space-y-4">
-              <div>
-                <h2 className="text-2xl font-bold">{viewingEvent.title}</h2>
-                <div className="mt-2 flex flex-wrap gap-4 text-sm text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <CalendarDays className="size-4 text-primary" />
-                    {new Date(viewingEvent.date + "T00:00").toLocaleDateString("en-US", {
-                      dateStyle: "long",
-                    })}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock3 className="size-4 text-primary" />
-                    {viewingEvent.time}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="size-4 text-primary" />
-                    {viewingEvent.location}
-                  </span>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-border/80 bg-muted/30 p-4">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  About this Event
-                </h4>
-                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-foreground">
-                  {viewingEvent.description}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="rounded-xl border border-border/70 p-3">
-                  <span className="text-xs text-muted-foreground">Volunteers Needed</span>
-                  <div className="mt-1 font-bold text-foreground">
-                    {viewingEvent.volunteersNeeded} people
-                  </div>
-                </div>
-                <div className="rounded-xl border border-border/70 p-3">
-                  <span className="text-xs text-muted-foreground">Organizer Contact</span>
-                  <div className="mt-1 font-bold text-foreground">
-                    {viewingEvent.contactPhone || "Not provided"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
-                <span>Organizer: {viewingEvent.organizerName} ({viewingEvent.organizerEmail})</span>
-                <Button variant="outline" size="sm" onClick={() => setViewingEvent(null)}>
-                  Close
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ───────────────── EDIT EVENT MODAL ───────────────── */}
       {editingEvent && (
@@ -524,7 +550,7 @@ export default function ManageEventsPage() {
             <div className="mb-6">
               <h2 className="text-2xl font-bold">Edit Event</h2>
               <p className="text-xs text-muted-foreground">
-                Update details for this event. Backend function sample is wired ready.
+                Update details for this event.
               </p>
             </div>
 
@@ -532,7 +558,7 @@ export default function ManageEventsPage() {
               <div>
                 <label className="mb-1 block text-xs font-semibold">Event Title</label>
                 <Input
-                  value={editingEvent.title}
+                  value={editingEvent.title || ""}
                   onChange={(e) =>
                     setEditingEvent({ ...editingEvent, title: e.target.value })
                   }
@@ -545,7 +571,7 @@ export default function ManageEventsPage() {
                 <label className="mb-1 block text-xs font-semibold">Description</label>
                 <textarea
                   rows={4}
-                  value={editingEvent.description}
+                  value={editingEvent.description || ""}
                   onChange={(e) =>
                     setEditingEvent({ ...editingEvent, description: e.target.value })
                   }
@@ -559,7 +585,7 @@ export default function ManageEventsPage() {
                   <label className="mb-1 block text-xs font-semibold">Date</label>
                   <Input
                     type="date"
-                    value={editingEvent.date}
+                    value={editingEvent.date || ""}
                     onChange={(e) =>
                       setEditingEvent({ ...editingEvent, date: e.target.value })
                     }
@@ -571,7 +597,7 @@ export default function ManageEventsPage() {
                   <label className="mb-1 block text-xs font-semibold">Time</label>
                   <Input
                     type="time"
-                    value={editingEvent.time}
+                    value={editingEvent.time || ""}
                     onChange={(e) =>
                       setEditingEvent({ ...editingEvent, time: e.target.value })
                     }
@@ -584,7 +610,7 @@ export default function ManageEventsPage() {
               <div>
                 <label className="mb-1 block text-xs font-semibold">Location</label>
                 <Input
-                  value={editingEvent.location}
+                  value={editingEvent.location || ""}
                   onChange={(e) =>
                     setEditingEvent({ ...editingEvent, location: e.target.value })
                   }
@@ -601,7 +627,7 @@ export default function ManageEventsPage() {
                   <Input
                     type="number"
                     min="1"
-                    value={editingEvent.volunteersNeeded}
+                    value={editingEvent.volunteersNeeded || ""}
                     onChange={(e) =>
                       setEditingEvent({
                         ...editingEvent,
@@ -614,7 +640,7 @@ export default function ManageEventsPage() {
                 <div>
                   <label className="mb-1 block text-xs font-semibold">Contact Phone</label>
                   <Input
-                    value={editingEvent.contactPhone}
+                    value={editingEvent.contactPhone || ""}
                     onChange={(e) =>
                       setEditingEvent({
                         ...editingEvent,
@@ -629,7 +655,7 @@ export default function ManageEventsPage() {
               <div>
                 <label className="mb-1 block text-xs font-semibold">Thumbnail URL</label>
                 <Input
-                  value={editingEvent.thumbnail}
+                  value={editingEvent.thumbnail || ""}
                   onChange={(e) =>
                     setEditingEvent({ ...editingEvent, thumbnail: e.target.value })
                   }
@@ -671,7 +697,7 @@ export default function ManageEventsPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setDeletingEventId(null)}
+                onClick={() => setDeletingEventId(eventId)}
               >
                 Cancel
               </Button>

@@ -202,14 +202,18 @@ export default function CreateEventForm({
 
     console.log("payload", payload);
 
-    // const result = await fetch(`${process.env.PUBLIC_SERVER_URL}/create - event`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // })
+    const result = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/create-event`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+    const data = await result.json();
 
+    if (result?.ok) {
+      toast.success("Event created successfully!");
+    }
 
   };
 

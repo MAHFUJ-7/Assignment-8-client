@@ -30,7 +30,6 @@ export default function Navbar() {
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
   };
-  console.log("User in Navbar:", user);
 
   const initial = (user?.name ?? "U").charAt(0).toUpperCase();
 
@@ -46,14 +45,17 @@ export default function Navbar() {
         </Link>
 
         {/* Center links */}
-        <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-10 text-[15px] font-medium lg:flex">
+        {
+          user? (
+            <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-10 text-[15px] font-medium lg:flex">
           <Link href="/" className="text-white/90 transition hover:text-white">
             Home
           </Link>
-          <Link href="/#upcoming-events" className="text-white/70 transition hover:text-white">
+          <Link href="/upcomming-events" className="text-white/70 transition hover:text-white">
             Upcoming Events
           </Link>
-        </div>
+        </div>) : null
+        }
 
         {/* Right side — auth states (seam above) */}
         {user ? (
@@ -87,26 +89,26 @@ export default function Navbar() {
                   </PopoverTitle>
                   <PopoverDescription>
                     <div className="text-[13px] text-white/80 m-1">
-                    <p className=" text-white/80">
-                      {user?.email ?? "No email available"}
-                    </p>
+                      <p className=" text-white/80">
+                        {user?.email ?? "No email available"}
+                      </p>
 
-                    <Link href="/create_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
-                      <CiCirclePlus />Create Event
-                    </Link>
+                      <Link href="/create_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
+                        <CiCirclePlus />Create Event
+                      </Link>
 
-                    <Link href="/manage_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
-                      <CiSettings />Manage Events
-                    </Link>
+                      <Link href="/manage_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
+                        <CiSettings />Manage Events
+                      </Link>
 
-                    <Link href="/create_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
-                      <CiCircleCheck />Joined Events
-                    </Link>
+                      <Link href="/create_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
+                        <CiCircleCheck />Joined Events
+                      </Link>
 
 
-                    <Button variant="destructive" onClick={() => signOut()} className="rounded-md text-xl mt-2 w-full bg-red-100 text-red-500 hover:bg-red-600 hover:text-white">
-                      Logout
-                    </Button>
+                      <Button variant="destructive" onClick={() => signOut()} className="rounded-md text-xl mt-2 w-full bg-red-100 text-red-500 hover:bg-red-600 hover:text-white">
+                        Logout
+                      </Button>
                     </div>
                   </PopoverDescription>
                 </PopoverHeader>

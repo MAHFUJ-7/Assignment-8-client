@@ -15,6 +15,7 @@ export async function proxy(request) {
 
 export const config = {
   matcher: [
+    // "upcoming-events/",
      "/productDetails/:path*",
     "/product/:path*",
     "/myProfile/:path*",
