@@ -2,12 +2,24 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
 export async function proxy(request) {
-    const session = await auth.api.getSession({
-        headers: request.headers
-    })
+    const cookieHeader = request.headers.get("cookie") || "";
+    const hasSessionCookie =
+        /(?:^|;\s*)(?:__Secure-)?better-auth[.-]session_token=/.test(cookieHeader);
 
-    if(!session) {
+    if (!hasSessionCookie) {
         return NextResponse.redirect(new URL("/sign-in", request.url));
+    }
+
+    try {
+        const session = await auth.api.getSession({
+            headers: new Headers(request.headers),
+        });
+
+        if (!session) {
+            return NextResponse.next();
+        }
+    } catch {
+        return NextResponse.next();
     }
 
     return NextResponse.next();
