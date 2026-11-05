@@ -17,6 +17,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { authHeaders } from "@/lib/auth-jwt";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -92,13 +93,20 @@ export default function JoinedEvents() {
     if (isPending) return;
     if (!email) return setLoading(false);
 
-    fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/user-events?email=${encodeURIComponent(email)}`
-    )
-      .then((res) => res.json())
-      .then((data) => setJoinedEvents(Array.isArray(data) ? data : []))
-      .catch((err) => setError(err?.message || "Could not load your joined events."))
-      .finally(() => setLoading(false));
+    (async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/user-events?email=${encodeURIComponent(email)}`,
+          { headers: await authHeaders(email) }
+        );
+        const data = await res.json();
+        setJoinedEvents(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setError(err?.message || "Could not load your joined events.");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [email, isPending]);
 
   // Sort joined events strictly by event date (earliest first)

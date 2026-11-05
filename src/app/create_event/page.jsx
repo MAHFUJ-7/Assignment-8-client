@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
   CalendarDays,
@@ -14,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { authHeaders } from "@/lib/auth-jwt";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -146,11 +148,14 @@ export default function CreateEventForm({
   onSubmit,
   onCancel,
 }) {
-  const { data: session } = authClient.useSession();
-  const currentUser = user ?? {
-    displayName: session?.user?.name ?? "SevaConnect User",
-    email: session?.user?.email ?? "No email available",
-  };
+  const router = useRouter();
+  const { data: session, isPending } = authClient.useSession();
+  const currentUser = user ?? (session?.user
+    ? {
+      displayName: session.user.name,
+      email: session.user.email,
+    }
+    : null);
 
   const [values, setValues] = useState(INITIAL_VALUES);
   const [errors, setErrors] = useState({});
@@ -179,6 +184,12 @@ export default function CreateEventForm({
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!currentUser?.email) {
+      toast.error("Please sign in before creating an event.");
+      router.push("/sign-in");
+      return;
+    }
+
     const foundErrors = validate(values);
     setErrors(foundErrors);
     setTouched(Object.fromEntries(Object.keys(INITIAL_VALUES).map((key) => [key, true])));
@@ -200,21 +211,28 @@ export default function CreateEventForm({
       createdAt: new Date().toISOString(),
     };
 
-    console.log("payload", payload);
+    try {
+      setSubmitting(true);
+      const result = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/create-event`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(await authHeaders(currentUser.email)),
+        },
+        body: JSON.stringify(payload),
+      });
 
-    const result = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/create-event`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-    const data = await result.json();
+      if (!result.ok) {
+        throw new Error("Could not create the event.");
+      }
 
-    if (result?.ok) {
       toast.success("Event created successfully!");
+      router.push("/upcomming-events");
+    } catch (error) {
+      toast.error(error?.message || "Could not create the event right now.");
+    } finally {
+      setSubmitting(false);
     }
-
   };
 
   const error = (name) => (touched[name] ? errors[name] : undefined);
@@ -225,6 +243,32 @@ export default function CreateEventForm({
       year: "numeric",
     })
     : "Date";
+
+  if (isPending) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background text-foreground">
+        <p className="text-sm text-muted-foreground">Checking your account...</p>
+      </main>
+    );
+  }
+
+  if (!currentUser?.email) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <h1 className="text-2xl font-bold">Sign in to create an event</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Event creation is available to registered SevaConnect members.
+            </p>
+            <Button className="mt-6" onClick={() => router.push("/sign-in")}>
+              Go to sign in
+            </Button>
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background px-4 py-8 text-foreground md:px-8 md:py-12">

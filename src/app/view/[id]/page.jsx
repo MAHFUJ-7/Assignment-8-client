@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
+import { authHeaders } from "@/lib/auth-jwt";
 
 import {
   ArrowLeft,
@@ -142,7 +143,10 @@ export default function EventViewPage() {
     const willJoin = !isJoined;
     setSubmitting(true);
     try {
-      const res = await fetch(joinUrl, { method: willJoin ? "POST" : "DELETE" });
+      const res = await fetch(joinUrl, {
+        method: willJoin ? "POST" : "DELETE",
+        headers: await authHeaders(email),
+      });
 
       if (res.status === 409) {
         // Another tab/device already joined — resync instead of failing.

@@ -16,10 +16,16 @@ import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff, Gift, Image, Lock, Mail, TreePine, User, Waves } from "lucide-react";
 
 const INPUT =
-    "h-11 w-full rounded-xl border border-white/[0.08] bg-[#0b100d] pl-10 pr-4 text-[14px] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] placeholder:text-white/25 transition-colors duration-200 hover:border-white/[0.14] focus:border-emerald-400/35 focus:bg-[#0d130f] focus:outline-none";
+    "h-11 w-full rounded-xl border border-input dark:border-white/[0.08] bg-background dark:bg-[#0b100d] pl-10 pr-4 text-[14px] text-foreground dark:text-white shadow-[inset_0_1px_0_0_rgba(0,0,0,0.03)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] placeholder:text-muted-foreground dark:placeholder:text-white/25 transition-colors duration-200 hover:border-foreground/20 dark:hover:border-white/[0.14] focus:border-primary/60 dark:focus:border-emerald-400/35 focus:bg-card dark:focus:bg-[#0d130f] focus:outline-none";
 
-const LABEL = "text-[13px] font-medium text-white/60";
+const LABEL = "text-[13px] font-medium text-muted-foreground dark:text-white/60";
+const FIELD_ERROR = "mt-1.5 text-[11px] text-red-500 dark:text-red-400";
 const PASSWORD_RULE = /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/;
+
+const validateName = (value) => {
+    if (value.trim().length < 3) return "Name must be at least 3 characters.";
+    return null;
+};
 
 const validatePassword = (value) => {
     if (value.length < 6) return "Password must be at least 6 characters.";
@@ -31,19 +37,19 @@ const validatePassword = (value) => {
 const EVENT_CARDS = [
     {
         icon: Gift,
-        tint: "bg-rose-500/20 text-rose-300",
+        tint: "bg-rose-500/15 text-rose-600 dark:text-rose-300",
         title: "Blanket Distribution",
         meta: "Mohammadpur · Sat 9 AM",
     },
     {
         icon: Waves,
-        tint: "bg-sky-500/20 text-sky-300",
+        tint: "bg-sky-500/15 text-sky-600 dark:text-sky-300",
         title: "Riverside Cleanup",
         meta: "Buriganga · 56 joined",
     },
     {
         icon: TreePine,
-        tint: "bg-amber-500/20 text-amber-300",
+        tint: "bg-amber-500/15 text-amber-600 dark:text-amber-300",
         title: "Tree Plantation Drive",
         meta: "Mirpur 10 · starts soon",
     },
@@ -100,11 +106,11 @@ export default function SignUpPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     return (
-        <main className="relative flex-1 overflow-hidden bg-[#090d0a]">
-            {/* Ambient background */}
+        <main className="relative flex-1 overflow-hidden bg-background text-foreground">
+            {/* Ambient background - light / dark variants */}
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0"
+                className="pointer-events-none absolute inset-0 hidden dark:block"
                 style={{
                     background:
                         "radial-gradient(520px 320px at 78% 28%, rgba(16,185,129,0.06), transparent 65%)," +
@@ -114,7 +120,17 @@ export default function SignUpPage() {
             />
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 opacity-[0.045]"
+                className="pointer-events-none absolute inset-0 dark:hidden"
+                style={{
+                    background:
+                        "radial-gradient(520px 320px at 78% 28%, rgba(16,185,129,0.08), transparent 65%)," +
+                        "radial-gradient(560px 380px at 96% 102%, rgba(245,166,35,0.07), transparent 60%)," +
+                        "linear-gradient(175deg, #f6f9f5 0%, #f2f6f1 55%, #edf2ec 100%)",
+                }}
+            />
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-[0.028] dark:opacity-[0.045]"
                 style={{
                     backgroundImage:
                         "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px)," +
@@ -136,11 +152,11 @@ export default function SignUpPage() {
             />
 
             <div className="relative z-10 grid min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-78px)] lg:grid-cols-2">
-                {/* Left half — product story */}
-                <aside className="relative hidden overflow-hidden border-r border-white/[0.06] px-12 py-10 lg:flex lg:flex-col lg:justify-center xl:px-20">
+                {/* Left half - product story */}
+                <aside className="relative hidden overflow-hidden border-r border-border dark:border-white/[0.06] px-12 py-10 lg:flex lg:flex-col lg:justify-center xl:px-20">
                     <div
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-0"
+                        className="pointer-events-none absolute inset-0 opacity-50 dark:opacity-100"
                         style={{
                             background:
                                 "radial-gradient(560px 400px at 16% 10%, rgba(16,185,129,0.13), transparent 62%)," +
@@ -153,14 +169,14 @@ export default function SignUpPage() {
                                 <span aria-hidden="true" className="h-px w-8 bg-[#f5a623]/50" />
                                 Why volunteers sign up
                             </p>
-                            <h2 className="mt-4 text-[36px] font-semibold leading-[1.05] tracking-[-0.02em] text-white xl:text-[42px]">
+                            <h2 className="mt-4 text-[36px] font-semibold leading-[1.05] tracking-[-0.02em] text-foreground dark:text-white xl:text-[42px]">
                                 Turn small acts
                                 <br />
                                 into
                                 <br />
                                 <span className="text-[#f5a623]">real impact.</span>
                             </h2>
-                            <p className="mt-4 text-[14px] leading-relaxed text-white/50">
+                            <p className="mt-4 text-[14px] leading-relaxed text-muted-foreground dark:text-white/50">
                                 Create events, join causes, track your hours.
                             </p>
                         </div>
@@ -169,7 +185,7 @@ export default function SignUpPage() {
                             {EVENT_CARDS.map((card, i) => (
                                 <li
                                     key={card.title}
-                                    className="flex w-fit items-center gap-3.5 rounded-xl border border-white/[0.08] bg-white/[0.045] p-3 pr-7 shadow-[0_20px_50px_-25px_rgba(0,0,0,0.7)] backdrop-blur-md"
+                                    className="flex w-fit items-center gap-3.5 rounded-xl border border-border bg-card p-3 pr-7 shadow-lg dark:border-white/[0.08] dark:bg-white/[0.045] dark:shadow-[0_20px_50px_-25px_rgba(0,0,0,0.7)] backdrop-blur-md"
                                     style={{
                                         marginLeft: `${i * 26}px`,
                                         transform: `rotate(${[0.35, -0.4, 0.3][i % 3]}deg)`,
@@ -181,10 +197,10 @@ export default function SignUpPage() {
                                         <card.icon className="size-[18px]" strokeWidth={1.75} />
                                     </span>
                                     <span>
-                                        <span className="block text-[13px] font-semibold text-white">
+                                        <span className="block text-[13px] font-semibold text-foreground dark:text-white">
                                             {card.title}
                                         </span>
-                                        <span className="mt-0.5 block text-[11px] text-white/45">
+                                        <span className="mt-0.5 block text-[11px] text-muted-foreground dark:text-white/45">
                                             {card.meta}
                                         </span>
                                     </span>
@@ -192,13 +208,13 @@ export default function SignUpPage() {
                             ))}
                         </ul>
 
-                        <div className="flex gap-10 border-t border-white/[0.07] pt-6">
+                        <div className="flex gap-10 border-t border-border dark:border-white/[0.07] pt-6">
                             {IMPACT_STATS.map((stat) => (
                                 <div key={stat.label}>
-                                    <div className="text-[24px] font-semibold leading-none tracking-tight text-white">
+                                    <div className="text-[24px] font-semibold leading-none tracking-tight text-foreground dark:text-white">
                                         {stat.value}
                                     </div>
-                                    <div className="mt-1.5 text-[11px] font-medium text-white/40">
+                                    <div className="mt-1.5 text-[11px] font-medium text-muted-foreground dark:text-white/40">
                                         {stat.label}
                                     </div>
                                 </div>
@@ -207,32 +223,38 @@ export default function SignUpPage() {
                     </div>
                 </aside>
 
-                {/* Right half — form */}
+                {/* Right half - form */}
                 <section className="relative flex flex-col justify-center px-5 py-10 sm:px-10">
                     <div className="mx-auto w-full max-w-[400px]">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#f5a623]/80">
                             Create account
                         </p>
-                        <h1 className="mt-2 text-[30px] font-semibold leading-tight tracking-[-0.02em] text-white sm:text-[32px]">
+                        <h1 className="mt-2 text-[30px] font-semibold leading-tight tracking-[-0.02em] text-foreground dark:text-white sm:text-[32px]">
                             Create your account
                         </h1>
-                        <p className="mt-1.5 text-[14px] text-white/45">
-                            Free forever — 4.8k+ volunteers already in.
+                        <p className="mt-1.5 text-[14px] text-muted-foreground dark:text-white/45">
+                            Free forever - 4.8k+ volunteers already in.
                         </p>
 
-                        <div className="mt-0 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_40px_80px_-30px_rgba(0,0,0,0.6)] sm:p-6">
+                        <div className="mt-0 rounded-2xl border border-border bg-card p-5 dark:border-white/[0.08] dark:bg-white/[0.03] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),0_40px_80px_-30px_rgba(0,0,0,0.6)] sm:p-6">
                             <Form className="flex flex-col gap-4" onSubmit={onSubmit}>
-                                <TextField isRequired name="name" type="text" autoComplete="name">
+                                <TextField
+                                    isRequired
+                                    name="name"
+                                    type="text"
+                                    autoComplete="name"
+                                    validate={validateName}
+                                >
                                     <Label className={LABEL}>Full name</Label>
                                     <div className="relative mt-1.5">
                                         <User
                                             aria-hidden="true"
                                             strokeWidth={1.5}
-                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-white/30"
+                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-muted-foreground dark:text-white/30"
                                         />
                                         <Input placeholder="Your full name" className={INPUT} />
                                     </div>
-                                    <FieldError className="mt-1.5 text-[11px] text-red-400" />
+                                    <FieldError className={FIELD_ERROR} />
                                 </TextField>
 
                                 <TextField
@@ -252,11 +274,11 @@ export default function SignUpPage() {
                                         <Mail
                                             aria-hidden="true"
                                             strokeWidth={1.5}
-                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-white/30"
+                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-muted-foreground dark:text-white/30"
                                         />
                                         <Input placeholder="you@example.com" className={INPUT} />
                                     </div>
-                                    <FieldError className="mt-1.5 text-[11px] text-red-400" />
+                                    <FieldError className={FIELD_ERROR} />
                                 </TextField>
 
                                 <TextField
@@ -275,11 +297,11 @@ export default function SignUpPage() {
                                         <Image
                                             aria-hidden="true"
                                             strokeWidth={1.5}
-                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-white/30"
+                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-muted-foreground dark:text-white/30"
                                         />
                                         <Input placeholder="https://example.com/photo.jpg" className={INPUT} />
                                     </div>
-                                    <FieldError className="mt-1.5 text-[11px] text-red-400" />
+                                    <FieldError className={FIELD_ERROR} />
                                 </TextField>
 
                                 <TextField
@@ -297,14 +319,14 @@ export default function SignUpPage() {
                                         <Lock
                                             aria-hidden="true"
                                             strokeWidth={1.5}
-                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-white/30"
+                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-muted-foreground dark:text-white/30"
                                         />
                                         <Input placeholder="Min. 6 characters, upper & lowercase" className={`${INPUT} pr-10`} />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword((v) => !v)}
                                             aria-label={showPassword ? "Hide password" : "Show password"}
-                                            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-white/30 transition hover:text-white/80"
+                                            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:text-foreground dark:text-white/30 dark:hover:text-white/80"
                                         >
                                             {showPassword ? (
                                                 <EyeOff className="size-4" strokeWidth={1.5} />
@@ -313,7 +335,7 @@ export default function SignUpPage() {
                                             )}
                                         </button>
                                     </div>
-                                    <FieldError className="mt-1.5 text-[11px] text-red-400" />
+                                    <FieldError className={FIELD_ERROR} />
                                 </TextField>
 
                                 <TextField
@@ -335,14 +357,14 @@ export default function SignUpPage() {
                                         <Lock
                                             aria-hidden="true"
                                             strokeWidth={1.5}
-                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-white/30"
+                                            className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-muted-foreground dark:text-white/30"
                                         />
                                         <Input placeholder="Re-enter password" className={`${INPUT} pr-10`} />
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword((v) => !v)}
                                             aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                                            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-white/30 transition hover:text-white/80"
+                                            className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition hover:text-foreground dark:text-white/30 dark:hover:text-white/80"
                                         >
                                             {showConfirmPassword ? (
                                                 <EyeOff className="size-4" strokeWidth={1.5} />
@@ -351,7 +373,7 @@ export default function SignUpPage() {
                                             )}
                                         </button>
                                     </div>
-                                    <FieldError className="mt-1.5 text-[11px] text-red-400" />
+                                    <FieldError className={FIELD_ERROR} />
                                 </TextField>
 
                                 <Button
@@ -363,24 +385,24 @@ export default function SignUpPage() {
                             </Form>
 
                             <div aria-hidden="true" className="my-4 flex items-center gap-3.5">
-                                <span className="h-px flex-1 bg-white/[0.07]" />
-                                <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/30">
+                                <span className="h-px flex-1 bg-border dark:bg-white/[0.07]" />
+                                <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground dark:text-white/30">
                                     or
                                 </span>
-                                <span className="h-px flex-1 bg-white/[0.07]" />
+                                <span className="h-px flex-1 bg-border dark:bg-white/[0.07]" />
                             </div>
 
                             <Button
                                 type="button"
                                 onClick={handleSignUpGoogle}
-                                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-[14px] font-medium text-white/80 transition hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-white"
+                                className="flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-background text-[14px] font-medium text-foreground/80 transition hover:border-primary/40 hover:bg-muted dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-white/80 dark:hover:border-white/[0.14] dark:hover:bg-white/[0.07] dark:hover:text-white"
                             >
                                 <FcGoogle size={16} />
                                 Continue with Google
                             </Button>
                         </div>
 
-                        <p className="mt-5 text-center text-[13px] text-white/45">
+                        <p className="mt-5 text-center text-[13px] text-muted-foreground dark:text-white/45">
                             Already have an account?{" "}
                             <Link
                                 href="/sign-in"

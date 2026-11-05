@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { authHeaders } from "@/lib/auth-jwt";
 
 const TYPE_TONES = {
   Cleanup: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
@@ -53,6 +54,44 @@ const formatDate = (dateStr) => {
       year: "numeric",
     });
 };
+
+/* ───────── Validation for the Edit modal (mirrors Create Event rules) ───────── */
+function validateEdit(values, originalDate) {
+  const errors = {};
+
+  if (!values.title?.trim()) errors.title = "Add an event title.";
+  else if (values.title.trim().length < 6) errors.title = "Use at least 6 characters.";
+
+  if (!values.description?.trim()) errors.description = "Tell volunteers what they will do.";
+  else if (values.description.trim().length < 30) {
+    errors.description = "Use at least 30 characters.";
+  }
+
+  if (!values.date) errors.date = "Pick an event date.";
+  else if (
+    values.date !== originalDate && // an edit may keep an already-stored old date
+    new Date(`${values.date}T00:00`) <= new Date(new Date().toDateString())
+  ) {
+    errors.date = "Date must be in the future.";
+  }
+
+  if (!values.time) errors.time = "Set a start time.";
+
+  if (!values.thumbnail?.trim()) errors.thumbnail = "Add a thumbnail image URL.";
+  else if (!/^https?:\/\/.+\..+/i.test(values.thumbnail.trim())) {
+    errors.thumbnail = "Enter a valid http:// or https:// link.";
+  }
+
+  if (!values.location?.trim()) errors.location = "Add where the event happens.";
+  if (values.volunteersNeeded && Number(values.volunteersNeeded) < 1) {
+    errors.volunteersNeeded = "Enter 1 or more volunteers.";
+  }
+  if (values.contactPhone && !/^[+\d][\d\s-]{6,}$/.test(String(values.contactPhone).trim())) {
+    errors.contactPhone = "Enter a valid phone number.";
+  }
+
+  return errors;
+}
 
 /* ───────── Dedicated Thumbnail with Safe Fallback ───────── */
 function EventThumbnail({ src, alt, type, toneClass }) {
@@ -108,6 +147,8 @@ export default function ManageEventsPage() {
 
   // Modal states
   const [editingEvent, setEditingEvent] = useState(null);
+  const [editErrors, setEditErrors] = useState({});
+  const [originalEditDate, setOriginalEditDate] = useState("");
   const [deletingEventId, setDeletingEventId] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
 
@@ -126,7 +167,8 @@ export default function ManageEventsPage() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events?email=${encodeURIComponent(userEmail)}`
+        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events?email=${encodeURIComponent(userEmail)}`,
+        { headers: await authHeaders(userEmail) }
       );
 
       if (!res.ok) {
@@ -185,11 +227,28 @@ export default function ManageEventsPage() {
 
   const handleEdit = (event) => {
     setEditingEvent({ ...event });
+    setEditErrors({});
+    setOriginalEditDate(event.date || "");
+  };
+
+  /* Update one edit-modal field; re-validate live once a rule has failed. */
+  const patchEditing = (name, value) => {
+    const next = { ...editingEvent, [name]: value };
+    setEditingEvent(next);
+    if (Object.keys(editErrors).length > 0) {
+      setEditErrors(validateEdit(next, originalEditDate));
+    }
   };
 
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     if (!editingEvent) return;
+
+    const nextErrors = validateEdit(editingEvent, originalEditDate);
+    if (Object.keys(nextErrors).length > 0) {
+      setEditErrors(nextErrors);
+      return;
+    }
 
     const editId = editingEvent._id || editingEvent.id;
 
@@ -202,7 +261,10 @@ export default function ManageEventsPage() {
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${editId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(await authHeaders(session?.user?.email || currentUser?.email)),
+      },
       body: JSON.stringify(editingEvent),
     });
 
@@ -213,6 +275,7 @@ export default function ManageEventsPage() {
     );
     showNotice(`Event "${editingEvent.title}" updated successfully!`);
     setEditingEvent(null);
+    setEditErrors({});
   };
 
   const confirmDelete = async () => {
@@ -225,7 +288,10 @@ export default function ManageEventsPage() {
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${deletingEventId}`,
-        { method: "DELETE" }
+        {
+          method: "DELETE",
+          headers: await authHeaders(session?.user?.email || currentUser?.email),
+        }
       );
 
       if (!response.ok) {
@@ -559,12 +625,14 @@ export default function ManageEventsPage() {
                 <label className="mb-1 block text-xs font-semibold">Event Title</label>
                 <Input
                   value={editingEvent.title || ""}
-                  onChange={(e) =>
-                    setEditingEvent({ ...editingEvent, title: e.target.value })
-                  }
+                  onChange={(e) => patchEditing("title", e.target.value)}
+                  aria-invalid={Boolean(editErrors.title)}
                   required
-                  className="rounded-xl"
+                  className={`rounded-xl ${editErrors.title ? "border-destructive" : ""}`}
                 />
+                {editErrors.title && (
+                  <p className="mt-1 text-xs font-medium text-destructive">{editErrors.title}</p>
+                )}
               </div>
 
               <div>
@@ -572,12 +640,18 @@ export default function ManageEventsPage() {
                 <textarea
                   rows={4}
                   value={editingEvent.description || ""}
-                  onChange={(e) =>
-                    setEditingEvent({ ...editingEvent, description: e.target.value })
-                  }
+                  onChange={(e) => patchEditing("description", e.target.value)}
+                  aria-invalid={Boolean(editErrors.description)}
                   required
-                  className="w-full rounded-xl border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20"
+                  className={`w-full rounded-xl border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 ${
+                    editErrors.description ? "border-destructive" : "border-input"
+                  }`}
                 />
+                {editErrors.description && (
+                  <p className="mt-1 text-xs font-medium text-destructive">
+                    {editErrors.description}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -586,24 +660,28 @@ export default function ManageEventsPage() {
                   <Input
                     type="date"
                     value={editingEvent.date || ""}
-                    onChange={(e) =>
-                      setEditingEvent({ ...editingEvent, date: e.target.value })
-                    }
+                    onChange={(e) => patchEditing("date", e.target.value)}
+                    aria-invalid={Boolean(editErrors.date)}
                     required
-                    className="rounded-xl"
+                    className={`rounded-xl ${editErrors.date ? "border-destructive" : ""}`}
                   />
+                  {editErrors.date && (
+                    <p className="mt-1 text-xs font-medium text-destructive">{editErrors.date}</p>
+                  )}
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-semibold">Time</label>
                   <Input
                     type="time"
                     value={editingEvent.time || ""}
-                    onChange={(e) =>
-                      setEditingEvent({ ...editingEvent, time: e.target.value })
-                    }
+                    onChange={(e) => patchEditing("time", e.target.value)}
+                    aria-invalid={Boolean(editErrors.time)}
                     required
-                    className="rounded-xl"
+                    className={`rounded-xl ${editErrors.time ? "border-destructive" : ""}`}
                   />
+                  {editErrors.time && (
+                    <p className="mt-1 text-xs font-medium text-destructive">{editErrors.time}</p>
+                  )}
                 </div>
               </div>
 
@@ -611,12 +689,16 @@ export default function ManageEventsPage() {
                 <label className="mb-1 block text-xs font-semibold">Location</label>
                 <Input
                   value={editingEvent.location || ""}
-                  onChange={(e) =>
-                    setEditingEvent({ ...editingEvent, location: e.target.value })
-                  }
+                  onChange={(e) => patchEditing("location", e.target.value)}
+                  aria-invalid={Boolean(editErrors.location)}
                   required
-                  className="rounded-xl"
+                  className={`rounded-xl ${editErrors.location ? "border-destructive" : ""}`}
                 />
+                {editErrors.location && (
+                  <p className="mt-1 text-xs font-medium text-destructive">
+                    {editErrors.location}
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -628,27 +710,29 @@ export default function ManageEventsPage() {
                     type="number"
                     min="1"
                     value={editingEvent.volunteersNeeded || ""}
-                    onChange={(e) =>
-                      setEditingEvent({
-                        ...editingEvent,
-                        volunteersNeeded: Number(e.target.value),
-                      })
-                    }
-                    className="rounded-xl"
+                    onChange={(e) => patchEditing("volunteersNeeded", Number(e.target.value))}
+                    aria-invalid={Boolean(editErrors.volunteersNeeded)}
+                    className={`rounded-xl ${editErrors.volunteersNeeded ? "border-destructive" : ""}`}
                   />
+                  {editErrors.volunteersNeeded && (
+                    <p className="mt-1 text-xs font-medium text-destructive">
+                      {editErrors.volunteersNeeded}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="mb-1 block text-xs font-semibold">Contact Phone</label>
                   <Input
                     value={editingEvent.contactPhone || ""}
-                    onChange={(e) =>
-                      setEditingEvent({
-                        ...editingEvent,
-                        contactPhone: e.target.value,
-                      })
-                    }
-                    className="rounded-xl"
+                    onChange={(e) => patchEditing("contactPhone", e.target.value)}
+                    aria-invalid={Boolean(editErrors.contactPhone)}
+                    className={`rounded-xl ${editErrors.contactPhone ? "border-destructive" : ""}`}
                   />
+                  {editErrors.contactPhone && (
+                    <p className="mt-1 text-xs font-medium text-destructive">
+                      {editErrors.contactPhone}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -656,12 +740,16 @@ export default function ManageEventsPage() {
                 <label className="mb-1 block text-xs font-semibold">Thumbnail URL</label>
                 <Input
                   value={editingEvent.thumbnail || ""}
-                  onChange={(e) =>
-                    setEditingEvent({ ...editingEvent, thumbnail: e.target.value })
-                  }
+                  onChange={(e) => patchEditing("thumbnail", e.target.value)}
+                  aria-invalid={Boolean(editErrors.thumbnail)}
                   required
-                  className="rounded-xl"
+                  className={`rounded-xl ${editErrors.thumbnail ? "border-destructive" : ""}`}
                 />
+                {editErrors.thumbnail && (
+                  <p className="mt-1 text-xs font-medium text-destructive">
+                    {editErrors.thumbnail}
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-4">

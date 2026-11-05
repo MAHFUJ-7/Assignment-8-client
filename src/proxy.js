@@ -15,11 +15,9 @@ export async function proxy(request) {
 
 export const config = {
   matcher: [
-    // "upcoming-events/",
-     "/productDetails/:path*",
-    "/product/:path*",
-    "/myProfile/:path*",
+    "/create_event/:path*",
+    "/manage_event/:path*",
+    "/joined_events/:path*",
     "/profile/:path*",
-    
-   ], // Specify the routes the middleware applies to
+  ],
 };
