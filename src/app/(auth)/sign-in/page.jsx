@@ -10,8 +10,8 @@ import {
     Input,
     Label,
     TextField,
-    toast,
 } from "@heroui/react";
+import { toast } from "react-toastify";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff, Gift, Lock, Mail, TreePine, Waves } from "lucide-react";

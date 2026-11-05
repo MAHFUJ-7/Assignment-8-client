@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signUp, signIn } from "@/lib/auth-client";
 import {
     Button,
@@ -9,8 +10,8 @@ import {
     Input,
     Label,
     TextField,
-    toast,
 } from "@heroui/react";
+import { toast } from "react-toastify";
 import Link from "next/link";
 import { FcGoogle } from "react-icons/fc";
 import { Eye, EyeOff, Gift, Image, Lock, Mail, TreePine, User, Waves } from "lucide-react";
@@ -62,6 +63,7 @@ const IMPACT_STATS = [
 ];
 
 export default function SignUpPage() {
+    const router = useRouter();
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const onSubmit = async (e) => {
@@ -92,12 +94,13 @@ export default function SignUpPage() {
             return;
         }
         toast.success("Account created. Please sign in.");
+        router.push("/upcomming-events");
     };
 
     const handleSignUpGoogle = async () => {
         const { error } = await signIn.social({
             provider: "google",
-            callbackURL: "/",
+            callbackURL: "/upcomming-events",
         });
         if (error) toast.error(error.message || "Couldn't sign up with Google. Try again.");
     };
