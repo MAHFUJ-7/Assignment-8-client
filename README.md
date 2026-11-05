@@ -107,6 +107,8 @@ NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:5000
 
 `BETTER_AUTH_DATABASE_URL` is required by the client deployment. The application also accepts `AUTH_MONGODB_URL` as a fallback for deployments that reuse the server variable name.
 
+For production, set `BETTER_AUTH_URL` and `NEXT_PUBLIC_BETTER_AUTH_URL` to the deployed client URL, and set `BETTER_AUTH_TRUSTED_ORIGINS` to that same URL. `NEXT_PUBLIC_SERVER_BASE_URL` must be the deployed Express API URL, not the client or Next.js deployment URL. Do not include a trailing slash.
+
 ### 3. Install and configure the server
 
 ```bash

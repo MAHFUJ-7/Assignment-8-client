@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { SERVER_BASE_URL } from "@/lib/server-url";
 import {
   ArrowRight,
   CalendarDays,
@@ -140,7 +141,7 @@ export default function RecentEvents() {
         setLoading(true);
         setError(null);
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/recent-events`
+          `${SERVER_BASE_URL}/recent-events`
         );
         if (!res.ok) {
           throw new Error(`Failed to load events (${res.status} ${res.statusText})`);

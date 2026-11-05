@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { authHeaders } from "@/lib/auth-jwt";
+import { SERVER_BASE_URL } from "@/lib/server-url";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -214,7 +215,7 @@ export default function CreateEventForm({
 
     try {
       setSubmitting(true);
-      const result = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/create-event`, {
+      const result = await fetch(`${SERVER_BASE_URL}/create-event`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

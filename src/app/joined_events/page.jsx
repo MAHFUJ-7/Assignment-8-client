@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { authHeaders } from "@/lib/auth-jwt";
+import { SERVER_BASE_URL } from "@/lib/server-url";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -96,7 +97,7 @@ export default function JoinedEvents() {
     (async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/user-events?email=${encodeURIComponent(email)}`,
+          `${SERVER_BASE_URL}/user-events?email=${encodeURIComponent(email)}`,
           { headers: await authHeaders(email) }
         );
         const data = await res.json();

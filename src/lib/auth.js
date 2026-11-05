@@ -15,8 +15,13 @@ const client = new MongoClient(databaseUrl);
 const db = client.db("assignment-8");
 
 export const auth = betterAuth({
-    baseURL: process.env.BETTER_AUTH_URL,
-    trustedOrigins: (process.env.BETTER_AUTH_TRUSTED_ORIGINS || process.env.BETTER_AUTH_URL || "")
+    baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
+    trustedOrigins: (
+        process.env.BETTER_AUTH_TRUSTED_ORIGINS ||
+        process.env.BETTER_AUTH_URL ||
+        process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
+        ""
+    )
         .split(",")
         .map((origin) => origin.trim())
         .filter(Boolean),

@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { authHeaders } from "@/lib/auth-jwt";
+import { SERVER_BASE_URL } from "@/lib/server-url";
 
 const TYPE_TONES = {
   Cleanup: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
@@ -167,7 +168,7 @@ export default function ManageEventsPage() {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events?email=${encodeURIComponent(userEmail)}`,
+        `${SERVER_BASE_URL}/events?email=${encodeURIComponent(userEmail)}`,
         { headers: await authHeaders(userEmail) }
       );
 
@@ -256,7 +257,7 @@ export default function ManageEventsPage() {
 
     console.log("Editing event payload:", editingEvent);
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${editId}`, {
+    const res = await fetch(`${SERVER_BASE_URL}/events/${editId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -284,7 +285,7 @@ export default function ManageEventsPage() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${deletingEventId}`,
+        `${SERVER_BASE_URL}/events/${deletingEventId}`,
         {
           method: "DELETE",
           headers: await authHeaders(session?.user?.email || currentUser?.email),

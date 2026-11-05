@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { SERVER_BASE_URL } from "@/lib/server-url";
 import {
   CalendarDays,
   Clock3,
@@ -127,7 +128,7 @@ export default function UpcomingEventsPage() {
       setLoading(true);
       setError(null);
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/all-events`
+        `${SERVER_BASE_URL}/all-events`
       );
 
       if (!res.ok) {

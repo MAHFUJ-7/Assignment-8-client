@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { authHeaders } from "@/lib/auth-jwt";
+import { SERVER_BASE_URL } from "@/lib/server-url";
 
 import {
   ArrowLeft,
@@ -78,7 +79,7 @@ export default function EventViewPage() {
 
   const { data: session } = useSession();
   const email = session?.user?.email;
-  const joinUrl = `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/join?email=${encodeURIComponent(email ?? "")}`;
+  const joinUrl = `${SERVER_BASE_URL}/events/${id}/join?email=${encodeURIComponent(email ?? "")}`;
 
 
 
@@ -94,7 +95,7 @@ export default function EventViewPage() {
       setLoading(true);
       setError(null);
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/event/${id}`
+        `${SERVER_BASE_URL}/event/${id}`
       );
 
       if (!res.ok) {
@@ -125,7 +126,7 @@ export default function EventViewPage() {
     (async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/join?email=${encodeURIComponent(email)}`
+          `${SERVER_BASE_URL}/events/${id}/join?email=${encodeURIComponent(email)}`
         );
         const data = await res.json();
         if (!cancelled) setIsJoined(Boolean(data.joined));

@@ -4,6 +4,8 @@
 
 
 
+import { SERVER_BASE_URL } from "@/lib/server-url";
+
 const TOKEN_KEY_PREFIX = "sevaconnect-jwt:";
 
 function tokenKey(email) {
@@ -18,7 +20,7 @@ export async function ensureToken(email) {
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/jwt`,
+      `${SERVER_BASE_URL}/jwt`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
