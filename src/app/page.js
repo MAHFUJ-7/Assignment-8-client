@@ -86,7 +86,7 @@ export default function HomePage() {
   return (
     <div>
       <section className="relative min-h-[754px] overflow-hidden">
-        {/* Hero background -- public/images/heroui-background.avif */}
+
         <Image
           src="/images/heroui-background.avif"
           alt=""
@@ -96,7 +96,7 @@ export default function HomePage() {
           className="object-cover"
         />
 
-        {/* Green wash + left dark gradient so text stays readable (matches the design) */}
+
         <div className="absolute inset-0 bg-green-950/35" aria-hidden="true" />
         <div
           className="absolute inset-0 bg-gradient-to-r from-[#081009]/90 via-[#0b130c]/40 to-transparent"
@@ -104,13 +104,13 @@ export default function HomePage() {
         />
 
         <div className="relative z-10 px-5 pb-16 pt-24 md:px-16 lg:pt-[144px]">
-          {/* Badge */}
+
           <span className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[15px] font-medium text-white/90 backdrop-blur-sm">
             <span aria-hidden="true">??</span>
             Community · Service · Impact
           </span>
 
-          {/* Heading */}
+
           <h1 className="mt-8 text-[44px] font-bold leading-[1.06] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[64px]">
             Small acts,
             <br />
@@ -119,13 +119,13 @@ export default function HomePage() {
             <span className="text-[#f5a623]">Serve your city.</span>
           </h1>
 
-          {/* Subtitle */}
+
           <p className="mt-9 max-w-[560px] text-base leading-relaxed text-white/80 md:text-lg">
             Create, join and track social service events near you — cleanups, plantations, blanket
             drives and more across Dhaka.
           </p>
 
-          {/* CTAs */}
+
           <div className="mt-7 flex flex-wrap items-center gap-4">
             <Link
               href="/upcomming-events"
@@ -141,7 +141,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Stats */}
+
           <div className="mt-12 flex flex-wrap gap-10">
             {HERO_STATS.map((stat) => (
               <div key={stat.label}>
@@ -152,7 +152,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Floating event cards (desktop) */}
+
         {HERO_EVENT_CARDS.map((card) => (
           <div
             key={card.title}
@@ -171,7 +171,7 @@ export default function HomePage() {
         ))}
       </section>
 
-      {/* ----------- Features ----------- */}
+
       <section className="border-t border-border bg-secondary/30 px-4 py-14 text-foreground md:px-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto max-w-2xl text-center">
@@ -206,10 +206,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ----------- Recent upcoming events (dynamic, MongoDB limit(6)) ----------- */}
+
       <RecentEvents />
 
-      {/* ----------- Gallery (static) ----------- */}
+
       <section className="border-t border-border bg-secondary/30 px-4 py-14 text-foreground md:px-10 md:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
@@ -250,11 +250,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ----------- Newsletter (design only) ----------- */}
+
       <section className="bg-background px-4 py-14 md:px-10 md:py-16">
         <div className="mx-auto max-w-6xl">
           <div className="relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-12 text-center md:px-16 md:py-16">
-            {/* Decorative glows */}
+
             <div aria-hidden="true" className="absolute -left-24 -top-24 size-72 rounded-full bg-primary/15 blur-3xl" />
             <div aria-hidden="true" className="absolute -bottom-28 -right-16 size-80 rounded-full bg-[#f5a623]/15 blur-3xl" />
 

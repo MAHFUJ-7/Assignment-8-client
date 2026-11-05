@@ -513,7 +513,7 @@ export default function CreateEventForm({
             <Card className="overflow-hidden">
               <div className="relative aspect-video bg-muted">
                 {values.thumbnail && imageLoaded ? (
-                  // eslint-disable-next-line @next/next/no-img-element
+
                   <img
                     src={values.thumbnail}
                     alt=""

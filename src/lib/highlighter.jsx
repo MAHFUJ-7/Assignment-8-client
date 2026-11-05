@@ -2,7 +2,7 @@ import * as React from "react"
 import { createHighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript"
 
-// Add the languages you need. Each one loads the first time it is used.
+
 const languages = {
   bash: () => import("shiki/langs/shellscript.mjs"),
   css: () => import("shiki/langs/css.mjs"),
@@ -60,8 +60,7 @@ function getLanguage(language) {
   return aliases[name] ?? null
 }
 
-// Loads a language and returns a highlighter for it, or null for a language
-// that is not listed.
+
 export async function loadHighlighter(language) {
   const lang = getLanguage(language)
 
@@ -76,8 +75,8 @@ export async function loadHighlighter(language) {
   }
 
   return {
-    // Returns one React node per line, and the grammar state after the last
-    // line. Pass that state back to continue where the code left off.
+
+
     highlight(code, state) {
       const tokenize = (text) =>
         shiki.codeToTokens(text, {
@@ -87,8 +86,8 @@ export async function loadHighlighter(language) {
           grammarState: state,
         }).tokens
 
-      // ANSI has no grammar state, so each line is tokenized on its own and
-      // gets the same colors whether it arrives in one piece or streams.
+
+
       const tokens =
         lang === "ansi"
           ? code.split("\n").flatMap((line) => tokenize(line))
@@ -112,7 +111,7 @@ export async function loadHighlighter(language) {
   };
 }
 
-// Returns one React node per line, or null for a language that is not listed.
+
 export async function highlightCode(code, language) {
   const highlighter = await loadHighlighter(language)
 

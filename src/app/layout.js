@@ -20,7 +20,7 @@ export const metadata = {
     "Create, join and track social service events near you — cleanups, plantations, blanket drives and more across Dhaka.",
 };
 
-/* Applies the stored theme before first paint so light/dark never flashes. */
+
 const themeInitScript = `(function(){try{var t=localStorage.getItem("sevaconnect-theme");if(t==="light"){document.documentElement.classList.remove("dark")}else{localStorage.setItem("sevaconnect-theme","dark");document.documentElement.classList.add("dark")}}catch(e){}})();`;
 
 export default function RootLayout({ children }) {

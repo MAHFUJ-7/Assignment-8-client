@@ -55,7 +55,7 @@ const formatDate = (dateStr) => {
     });
 };
 
-/* ───────── Validation for the Edit modal (mirrors Create Event rules) ───────── */
+
 function validateEdit(values, originalDate) {
   const errors = {};
 
@@ -69,7 +69,7 @@ function validateEdit(values, originalDate) {
 
   if (!values.date) errors.date = "Pick an event date.";
   else if (
-    values.date !== originalDate && // an edit may keep an already-stored old date
+    values.date !== originalDate &&
     new Date(`${values.date}T00:00`) <= new Date(new Date().toDateString())
   ) {
     errors.date = "Date must be in the future.";
@@ -93,14 +93,14 @@ function validateEdit(values, originalDate) {
   return errors;
 }
 
-/* ───────── Dedicated Thumbnail with Safe Fallback ───────── */
+
 function EventThumbnail({ src, alt, type, toneClass }) {
   const [loadError, setLoadError] = useState(false);
 
   return (
     <div className="relative aspect-video w-full overflow-hidden bg-muted/60">
       {src && !loadError ? (
-        // eslint-disable-next-line @next/next/no-img-element
+
         <img
           src={src}
           alt={alt || "Event cover"}
@@ -145,7 +145,7 @@ export default function ManageEventsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("All");
 
-  // Modal states
+
   const [editingEvent, setEditingEvent] = useState(null);
   const [editErrors, setEditErrors] = useState({});
   const [originalEditDate, setOriginalEditDate] = useState("");
@@ -157,7 +157,7 @@ export default function ManageEventsPage() {
     email: session?.user?.email || "crazymahfuj1@gmail.com",
   };
 
-  /* ───────── Fetch from Backend ───────── */
+
   const fetchEvents = useCallback(async () => {
     if (!userEmail) {
       setEvents([]);
@@ -189,23 +189,23 @@ export default function ManageEventsPage() {
     fetchEvents();
   }, [fetchEvents]);
 
-  // Filter events: Prioritize logged-in user's events if available
+
   const userEvents = useMemo(() => {
     const userEmail = session?.user?.email?.toLowerCase() || currentUser.email.toLowerCase();
     const mine = events.filter(
       (e) => e.organizerEmail?.toLowerCase() === userEmail
     );
-    // If matching user events exist, show only those; otherwise show all fetched events
+
     return mine.length > 0 ? mine : events;
   }, [events, session, currentUser.email]);
 
-  // Available event types derived dynamically from actual data
+
   const filterTypes = useMemo(() => {
     const types = new Set(userEvents.map((e) => e.type).filter(Boolean));
     return ["All", ...Array.from(types)];
   }, [userEvents]);
 
-  // Search & category filtered events
+
   const filteredEvents = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return userEvents.filter((evt) => {
@@ -218,12 +218,12 @@ export default function ManageEventsPage() {
     });
   }, [userEvents, searchQuery, selectedType]);
 
-  // Summary statistics
+
   const totalVolunteers = useMemo(() => {
     return userEvents.reduce((sum, e) => sum + (Number(e.volunteersNeeded) || 0), 0);
   }, [userEvents]);
 
-  /* ───────── Action Handlers ───────── */
+
 
   const handleEdit = (event) => {
     setEditingEvent({ ...event });
@@ -231,7 +231,7 @@ export default function ManageEventsPage() {
     setOriginalEditDate(event.date || "");
   };
 
-  /* Update one edit-modal field; re-validate live once a rule has failed. */
+
   const patchEditing = (name, value) => {
     const next = { ...editingEvent, [name]: value };
     setEditingEvent(next);
@@ -252,11 +252,8 @@ export default function ManageEventsPage() {
 
     const editId = editingEvent._id || editingEvent.id;
 
-    // await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${editId}`, {
-    //   method: "PUT",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(editingEvent),
-    // });
+
+
     console.log("Editing event payload:", editingEvent);
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${editId}`, {
@@ -317,7 +314,7 @@ export default function ManageEventsPage() {
   return (
     <div className="min-h-screen bg-background px-4 py-8 text-foreground md:px-12 md:py-12">
       <div className="mx-auto max-w-7xl">
-        {/* Toast / Notification Banner */}
+
         {statusMessage && (
           <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-950/90 px-5 py-3.5 text-sm font-medium text-emerald-200 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4">
             <CheckCircle2 className="size-5 text-emerald-400" />
@@ -325,7 +322,7 @@ export default function ManageEventsPage() {
           </div>
         )}
 
-        {/* Top Header */}
+
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
@@ -364,7 +361,7 @@ export default function ManageEventsPage() {
           </div>
         </div>
 
-        {/* Stats Row */}
+
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
             <CardContent className="p-5">
@@ -394,7 +391,7 @@ export default function ManageEventsPage() {
           </Card>
         </div>
 
-        {/* Search & Filter Bar */}
+
         <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-border/70 bg-card/40 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -426,7 +423,7 @@ export default function ManageEventsPage() {
           </div>
         </div>
 
-        {/* Loading State Skeleton */}
+
         {loading && (
           <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((n) => (
@@ -448,7 +445,7 @@ export default function ManageEventsPage() {
           </div>
         )}
 
-        {/* Error State */}
+
         {!loading && error && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-destructive/30 bg-destructive/5 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-destructive/15 text-destructive">
@@ -462,7 +459,7 @@ export default function ManageEventsPage() {
           </div>
         )}
 
-        {/* Empty State */}
+
         {!loading && !error && filteredEvents.length === 0 && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
@@ -480,7 +477,7 @@ export default function ManageEventsPage() {
           </div>
         )}
 
-        {/* Events Grid */}
+
         {!loading && !error && filteredEvents.length > 0 && (
           <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredEvents.map((event) => {
@@ -493,7 +490,7 @@ export default function ManageEventsPage() {
                   key={eventId}
                   className="group flex flex-col overflow-hidden rounded-2xl border-border/70 bg-card transition duration-200 hover:border-primary/40 hover:shadow-xl"
                 >
-                  {/* Event Thumbnail with Safe Fallback */}
+
                   <EventThumbnail
                     src={event.thumbnail}
                     alt={event.title}
@@ -558,9 +555,9 @@ export default function ManageEventsPage() {
                     )}
                   </CardContent>
 
-                  {/* Actions Footer */}
+
                   <CardFooter className="mt-auto grid grid-cols-3 gap-2 border-t border-border/60 bg-muted/20 p-3">
-                    {/* 1. View Button */}
+
                     <Link href={`/view/${eventId}`}>
                       <Button
                         variant="outline"
@@ -572,7 +569,7 @@ export default function ManageEventsPage() {
                       </Button>
                     </Link>
 
-                    {/* 2. Edit Button */}
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -583,7 +580,7 @@ export default function ManageEventsPage() {
                       Edit
                     </Button>
 
-                    {/* 3. Delete Button */}
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -601,7 +598,7 @@ export default function ManageEventsPage() {
         )}
       </div>
 
-      {/* ───────────────── EDIT EVENT MODAL ───────────────── */}
+
       {editingEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-border bg-card p-6 shadow-2xl md:p-8">
@@ -767,7 +764,7 @@ export default function ManageEventsPage() {
         </div>
       )}
 
-      {/* ───────────────── DELETE CONFIRMATION MODAL ───────────────── */}
+
       {deletingEventId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="w-full max-w-md rounded-3xl border border-destructive/30 bg-card p-6 shadow-2xl">

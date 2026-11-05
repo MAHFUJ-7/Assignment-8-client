@@ -97,11 +97,15 @@ Create `Client-Side/.env`:
 ```env
 BETTER_AUTH_SECRET=replace-with-a-long-random-secret
 BETTER_AUTH_URL=http://localhost:3000
+NEXT_PUBLIC_BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 BETTER_AUTH_DATABASE_URL=your-mongodb-connection-string
 BETTER_AUTH_GOOGLE_CLIENT_ID=your-google-client-id
 BETTER_AUTH_GOOGLE_CLIENT_SECRET=your-google-client-secret
 NEXT_PUBLIC_SERVER_BASE_URL=http://localhost:5000
 ```
+
+`BETTER_AUTH_DATABASE_URL` is required by the client deployment. The application also accepts `AUTH_MONGODB_URL` as a fallback for deployments that reuse the server variable name.
 
 ### 3. Install and configure the server
 

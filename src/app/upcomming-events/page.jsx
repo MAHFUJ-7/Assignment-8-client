@@ -39,14 +39,14 @@ const TYPE_TONES = {
   "Food Drive": "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/20",
 };
 
-// Check if an event date is strictly in the future or today
+
 const isFutureEvent = (event) => {
   if (!event?.date) return false;
   try {
     const timeStr = event.time ? event.time : "23:59:59";
     const eventDateTime = new Date(`${event.date}T${timeStr}`);
     if (isNaN(eventDateTime.getTime())) {
-      // Fallback: compare date-only to start of today
+
       const eventDate = new Date(`${event.date}T00:00:00`);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -70,14 +70,14 @@ const formatDate = (dateStr) => {
       });
 };
 
-/* ───────── Safe Cover Image Component ───────── */
+
 function EventThumbnail({ src, alt, type, toneClass }) {
   const [loadError, setLoadError] = useState(false);
 
   return (
     <div className="relative aspect-video w-full overflow-hidden bg-muted/70">
       {src && !loadError ? (
-        // eslint-disable-next-line @next/next/no-img-element
+
         <img
           src={src}
           alt={alt || "Event cover"}
@@ -119,9 +119,9 @@ export default function UpcomingEventsPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("All");
-  const [sortBy, setSortBy] = useState("date-asc"); // "date-asc" | "volunteers-desc"
+  const [sortBy, setSortBy] = useState("date-asc");
 
-  /* ───────── Fetch All Events from Backend ───────── */
+
   const fetchAllEvents = useCallback(async () => {
     try {
       setLoading(true);
@@ -137,7 +137,7 @@ export default function UpcomingEventsPage() {
       const data = await res.json();
       const allEvents = Array.isArray(data) ? data : [];
 
-      // Filter only strictly upcoming (future) events
+
       const futureOnly = allEvents.filter(isFutureEvent);
 
       setEvents(futureOnly);
@@ -153,13 +153,13 @@ export default function UpcomingEventsPage() {
     fetchAllEvents();
   }, [fetchAllEvents]);
 
-  // Dynamic filter categories from upcoming events
+
   const filterTypes = useMemo(() => {
     const types = new Set(events.map((e) => e.type).filter(Boolean));
     return ["All", ...Array.from(types)];
   }, [events]);
 
-  // Filtered and sorted events
+
   const displayedEvents = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -176,7 +176,7 @@ export default function UpcomingEventsPage() {
       if (sortBy === "volunteers-desc") {
         return (Number(b.volunteersNeeded) || 0) - (Number(a.volunteersNeeded) || 0);
       }
-      // Default: earliest date first
+
       const dateA = new Date(`${a.date || ""}T${a.time || "00:00"}`).getTime();
       const dateB = new Date(`${b.date || ""}T${b.time || "00:00"}`).getTime();
       return (dateA || 0) - (dateB || 0);
@@ -186,7 +186,7 @@ export default function UpcomingEventsPage() {
   return (
     <div className="min-h-screen bg-background px-4 py-8 text-foreground md:px-12 md:py-14">
       <div className="mx-auto max-w-7xl">
-        {/* Top Header Banner */}
+
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
@@ -221,7 +221,7 @@ export default function UpcomingEventsPage() {
           </div>
         </div>
 
-        {/* Filter, Search & Sort Bar */}
+
         <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-border/70 bg-card/50 p-4 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -268,7 +268,7 @@ export default function UpcomingEventsPage() {
           </div>
         </div>
 
-        {/* Loading Skeletons */}
+
         {loading && (
           <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((n) => (
@@ -289,7 +289,7 @@ export default function UpcomingEventsPage() {
           </div>
         )}
 
-        {/* Error State */}
+
         {!loading && error && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-destructive/30 bg-destructive/5 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-destructive/15 text-destructive">
@@ -307,7 +307,7 @@ export default function UpcomingEventsPage() {
           </div>
         )}
 
-        {/* Empty State */}
+
         {!loading && !error && displayedEvents.length === 0 && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
@@ -325,7 +325,7 @@ export default function UpcomingEventsPage() {
           </div>
         )}
 
-        {/* Events Grid */}
+
         {!loading && !error && displayedEvents.length > 0 && (
           <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {displayedEvents.map((event) => {
@@ -338,7 +338,7 @@ export default function UpcomingEventsPage() {
                   key={eventId}
                   className="group flex flex-col overflow-hidden rounded-2xl border-border/70 bg-card transition duration-200 hover:border-primary/40 hover:shadow-xl"
                 >
-                  {/* Thumbnail */}
+
                   <EventThumbnail
                     src={event.thumbnail}
                     alt={event.title}
@@ -397,7 +397,7 @@ export default function UpcomingEventsPage() {
                     )}
                   </CardContent>
 
-                  {/* Single Action: View Event Only */}
+
                   <CardFooter className="mt-auto border-t border-border/60 bg-muted/15 p-3.5">
                     <Link
                       href={`/view/${eventId}`}

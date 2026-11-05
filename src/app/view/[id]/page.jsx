@@ -82,12 +82,12 @@ export default function EventViewPage() {
 
 
 
-  // Single Function: Join & Leave Event State
+
   const [isJoined, setIsJoined] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null);
 
-  /* ───────── Fetch Single Event by ID ───────── */
+
   const fetchEvent = useCallback(async () => {
     if (!id) return;
     try {
@@ -118,7 +118,7 @@ export default function EventViewPage() {
     fetchEvent();
   }, [fetchEvent]);
 
-  /* ───────── Initialize join status so a returning user sees "Leave" ───────── */
+
   useEffect(() => {
     if (!id || !email) return;
     let cancelled = false;
@@ -129,14 +129,12 @@ export default function EventViewPage() {
         );
         const data = await res.json();
         if (!cancelled) setIsJoined(Boolean(data.joined));
-      } catch {
-        /* ignore — stays unjoined */
-      }
+      } catch {}
     })();
     return () => { cancelled = true; };
   }, [id, email]);
 
-  /* ───────── Single Function: Join the Event / Leave the Event ───────── */
+
   const handleToggleJoin = async () => {
     if (!email) return router.push("/sign-in");
 
@@ -149,7 +147,7 @@ export default function EventViewPage() {
       });
 
       if (res.status === 409) {
-        // Another tab/device already joined — resync instead of failing.
+
         setIsJoined(true);
         showNotice("You have already joined this event.");
         return;
@@ -157,7 +155,7 @@ export default function EventViewPage() {
       if (!res.ok) throw new Error();
 
       setIsJoined(willJoin);
-      // Keep the displayed count in step with the server's $inc.
+
       setEvent((prev) => {
         if (!prev || prev.volunteersNeeded == null) return prev;
         return { ...prev, volunteersNeeded: prev.volunteersNeeded + (willJoin ? -1 : 1) };
@@ -202,7 +200,7 @@ export default function EventViewPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Toast Notification */}
+
       {feedback && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-xl border border-border bg-card/95 px-5 py-3 text-sm font-semibold shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4">
           <CheckCircle2 className="size-4 text-emerald-500" />
@@ -210,7 +208,7 @@ export default function EventViewPage() {
         </div>
       )}
 
-      {/* ───────────────── TOP NAV ───────────────── */}
+
       <div className="border-b border-border/60 bg-card/40 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-8">
           <button
@@ -234,7 +232,7 @@ export default function EventViewPage() {
         </div>
       </div>
 
-      {/* ───────────────── LOADING STATE ───────────────── */}
+
       {loading && (
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-8">
           <div className="space-y-6 animate-pulse">
@@ -252,7 +250,7 @@ export default function EventViewPage() {
         </div>
       )}
 
-      {/* ───────────────── ERROR STATE ───────────────── */}
+
       {!loading && error && (
         <div className="mx-auto max-w-2xl px-4 py-20 text-center">
           <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border border-destructive/30 bg-destructive/10 text-destructive">
@@ -271,13 +269,13 @@ export default function EventViewPage() {
         </div>
       )}
 
-      {/* ───────────────── MAIN EVENT DETAILS ───────────────── */}
+
       {!loading && !error && event && (
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-8 md:py-12">
-          {/* Hero Banner with Safe Image Fallback */}
+
           <div className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden rounded-3xl border border-border/70 bg-card shadow-2xl">
             {event.thumbnail && !imageError ? (
-              // eslint-disable-next-line @next/next/no-img-element
+
               <img
                 src={event.thumbnail}
                 alt={event.title || "Event cover"}
@@ -298,13 +296,13 @@ export default function EventViewPage() {
               </div>
             )}
 
-            {/* Overlays */}
+
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
             <div
               className={`absolute inset-0 bg-gradient-to-r ${typeConfig.gradient} opacity-40`}
             />
 
-            {/* Badges on Hero */}
+
             <div className="absolute left-6 top-6 flex flex-wrap items-center gap-2.5">
               <span
                 className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-bold backdrop-blur-md shadow-lg ${typeConfig.color}`}
@@ -319,7 +317,7 @@ export default function EventViewPage() {
               </span>
             </div>
 
-            {/* Bottom Info on Banner */}
+
             <div className="absolute bottom-6 left-6 right-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <div>
                 <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-md sm:text-4xl md:text-5xl">
@@ -345,11 +343,11 @@ export default function EventViewPage() {
             </div>
           </div>
 
-          {/* ───────────────── CONTENT GRID ───────────────── */}
+
           <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px]">
-            {/* LEFT COLUMN: Main Information */}
+
             <div className="space-y-8">
-              {/* Event Overview Section */}
+
               <section className="rounded-3xl border border-border/70 bg-card p-6 sm:p-8">
                 <div className="flex items-center gap-2.5 text-primary">
                   <Sparkles className="size-5" />
@@ -363,14 +361,14 @@ export default function EventViewPage() {
                 </p>
               </section>
 
-              {/* Event Schedule & Details Grid */}
+
               <section className="rounded-3xl border border-border/70 bg-card p-6 sm:p-8">
                 <h3 className="text-base font-bold text-foreground">
                   Schedule & Requirements
                 </h3>
 
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                  {/* Date & Time */}
+
                   <div className="flex items-start gap-3.5 rounded-2xl border border-border/60 bg-muted/30 p-4">
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                       <CalendarDays className="size-5" />
@@ -388,7 +386,7 @@ export default function EventViewPage() {
                     </div>
                   </div>
 
-                  {/* Location */}
+
                   <div className="flex items-start gap-3.5 rounded-2xl border border-border/60 bg-muted/30 p-4">
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                       <MapPin className="size-5" />
@@ -406,7 +404,7 @@ export default function EventViewPage() {
                     </div>
                   </div>
 
-                  {/* Volunteers Quota */}
+
                   <div className="flex items-start gap-3.5 rounded-2xl border border-border/60 bg-muted/30 p-4">
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                       <Users className="size-5" />
@@ -426,7 +424,7 @@ export default function EventViewPage() {
                     </div>
                   </div>
 
-                  {/* Contact Information */}
+
                   <div className="flex items-start gap-3.5 rounded-2xl border border-border/60 bg-muted/30 p-4">
                     <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                       <Phone className="size-5" />
@@ -446,7 +444,7 @@ export default function EventViewPage() {
                 </div>
               </section>
 
-              {/* Guidelines Checklist */}
+
               <section className="rounded-3xl border border-border/70 bg-card p-6 sm:p-8">
                 <h3 className="text-base font-bold text-foreground">
                   Volunteer Preparation & Guidelines
@@ -467,9 +465,9 @@ export default function EventViewPage() {
               </section>
             </div>
 
-            {/* RIGHT COLUMN: Action & Organizer Sidebar */}
+
             <aside className="space-y-6 lg:sticky lg:top-8 lg:self-start">
-              {/* Single Action: Join / Leave Event Card */}
+
               <Card className="overflow-hidden rounded-3xl border-border/80 bg-card shadow-xl">
                 <div className="border-b border-border/60 bg-muted/20 p-6">
                   <div className="flex items-center justify-between">
@@ -497,7 +495,7 @@ export default function EventViewPage() {
                 </div>
 
                 <CardContent className="p-6">
-                  {/* The Only Action Function */}
+
                   <Button
                     onClick={handleToggleJoin}
                     disabled={submitting}
@@ -523,7 +521,7 @@ export default function EventViewPage() {
                 </CardContent>
               </Card>
 
-              {/* Organizer Profile Card */}
+
               <Card className="rounded-3xl border-border/80 bg-card p-6 shadow-md">
                 <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Organizer Details

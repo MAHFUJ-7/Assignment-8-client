@@ -1,8 +1,8 @@
-/**
- * JWT handle for protected API calls.
- * Better-auth owns sessions/cookies for identity; this token guards the
- * Express resource endpoints (create/update/delete/join/user-events).
- */
+
+
+
+
+
 
 const TOKEN_KEY_PREFIX = "sevaconnect-jwt:";
 
@@ -38,9 +38,7 @@ export async function ensureToken(email) {
 export async function refresh(email) {
   try {
     window.localStorage.removeItem(tokenKey(email));
-  } catch {
-    /* ignore */
-  }
+  } catch {}
   return ensureToken(email);
 }
 
@@ -55,7 +53,5 @@ export function clearToken() {
     Object.keys(window.localStorage)
       .filter((key) => key.startsWith(TOKEN_KEY_PREFIX))
       .forEach((key) => window.localStorage.removeItem(key));
-  } catch {
-    /* ignore */
-  }
+  } catch {}
 }

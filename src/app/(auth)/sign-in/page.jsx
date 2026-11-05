@@ -85,7 +85,7 @@ export default function SignInPage() {
 
     return (
         <main className="relative flex-1 overflow-hidden bg-background text-foreground">
-            {/* Ambient background - light)/ dark variants */}
+
             <div
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-0 hidden dark:block"
@@ -132,7 +132,7 @@ export default function SignInPage() {
             />
 
             <div className="relative z-10 grid min-h-[calc(100vh-4rem)] md:min-h-[calc(100vh-78px)] lg:grid-cols-2">
-                {/* Left half - product story */}
+
                 <aside className="relative hidden overflow-hidden border-r border-border dark:border-white/[0.06] px-12 py-10 lg:flex lg:flex-col lg:justify-center xl:px-20">
                     <div
                         aria-hidden="true"
@@ -203,7 +203,7 @@ export default function SignInPage() {
                     </div>
                 </aside>
 
-                {/* Right half - form */}
+
                 <section className="relative flex flex-col justify-center px-5 py-10 sm:px-10">
                     <div className="mx-auto w-full max-w-[400px]">
                         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#f5a623]/80">

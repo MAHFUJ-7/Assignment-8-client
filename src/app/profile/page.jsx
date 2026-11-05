@@ -31,7 +31,7 @@ export default function ProfilePage() {
   const [errors, setErrors] = useState({});
   const [seeded, setSeeded] = useState(false);
 
-  // Seed the form once real user data arrives.
+
   useEffect(() => {
     if (user && !seeded) {
       setName(user.name ?? "");
@@ -85,7 +85,7 @@ export default function ProfilePage() {
 
   const displayName = user?.name || "SevaConnect User";
 
-  /* --------- Loading (session check) --------- */
+
   if (isPending) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background text-foreground">
@@ -94,7 +94,7 @@ export default function ProfilePage() {
     );
   }
 
-  /* --------- Not signed in --------- */
+
   if (!user) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background px-4 text-foreground">
@@ -117,7 +117,7 @@ export default function ProfilePage() {
     );
   }
 
-  /* --------- Signed in: profile view + update --------- */
+
   return (
     <main className="min-h-screen bg-background px-4 py-8 text-foreground md:px-8 md:py-12">
       <div className="mx-auto max-w-4xl">
@@ -135,7 +135,7 @@ export default function ProfilePage() {
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-          {/* Identity card */}
+
           <Card>
             <CardContent className="flex flex-col items-center p-8 text-center">
               <Avatar className="size-24 border-2 border-primary/25">
@@ -160,7 +160,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Edit card */}
+
           <Card>
             <CardContent className="p-6 md:p-8">
               <div className="flex items-center justify-between gap-4">

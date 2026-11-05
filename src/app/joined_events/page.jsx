@@ -50,7 +50,7 @@ function EventThumbnail({ src, alt, type, toneClass }) {
   return (
     <div className="relative aspect-video w-full overflow-hidden bg-muted/70">
       {src && !loadError ? (
-        // eslint-disable-next-line @next/next/no-img-element
+
         <img
           src={src}
           alt={alt || "Event cover"}
@@ -109,7 +109,7 @@ export default function JoinedEvents() {
     })();
   }, [email, isPending]);
 
-  // Sort joined events strictly by event date (earliest first)
+
   const sortedEvents = [...joinedEvents].sort((a, b) => {
     const timeA = new Date(`${a.date || ""}T${a.time || "00:00"}`).getTime();
     const timeB = new Date(`${b.date || ""}T${b.time || "00:00"}`).getTime();
@@ -129,7 +129,7 @@ export default function JoinedEvents() {
   return (
     <div className="min-h-screen bg-background px-4 py-8 text-foreground md:px-12 md:py-14">
       <div className="mx-auto max-w-6xl">
-        {/* Header */}
+
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
@@ -164,7 +164,7 @@ export default function JoinedEvents() {
           </div>
         </div>
 
-        {/* Stats Row */}
+
         {!loading && !error && email && (
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <Card className="border-border/60 bg-card/60 backdrop-blur-sm">
@@ -208,7 +208,7 @@ export default function JoinedEvents() {
           </div>
         )}
 
-        {/* Search Bar */}
+
         {!loading && !error && email && joinedEvents.length > 0 && (
           <div className="mt-8 rounded-2xl border border-border/70 bg-card/50 p-4 backdrop-blur-sm">
             <div className="relative flex-1">
@@ -222,7 +222,7 @@ export default function JoinedEvents() {
           </div>
         )}
 
-        {/* Loading Skeleton */}
+
         {loading && (
           <div className="mt-8 grid gap-6 md:grid-cols-2">
             {[1, 2, 3, 4].map((n) => (
@@ -240,7 +240,7 @@ export default function JoinedEvents() {
           </div>
         )}
 
-        {/* Not Signed In */}
+
         {!loading && !email && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
@@ -256,7 +256,7 @@ export default function JoinedEvents() {
           </div>
         )}
 
-        {/* Error State */}
+
         {!loading && error && email && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-destructive/30 bg-destructive/5 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-destructive/15 text-destructive">
@@ -274,7 +274,7 @@ export default function JoinedEvents() {
           </div>
         )}
 
-        {/* Empty State */}
+
         {!loading && !error && email && joinedEvents.length === 0 && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
@@ -290,7 +290,7 @@ export default function JoinedEvents() {
           </div>
         )}
 
-        {/* Search Empty */}
+
         {!loading && !error && email && joinedEvents.length > 0 && filteredEvents.length === 0 && (
           <div className="mt-12 flex flex-col items-center justify-center rounded-3xl border border-dashed border-border/80 p-12 text-center">
             <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
@@ -303,7 +303,7 @@ export default function JoinedEvents() {
           </div>
         )}
 
-        {/* Events Grid sorted by event date (earliest first) */}
+
         {!loading && !error && email && filteredEvents.length > 0 && (
           <div className="mt-8 grid gap-6 md:grid-cols-2">
             {filteredEvents.map((event) => {
@@ -318,7 +318,7 @@ export default function JoinedEvents() {
                   key={eventId}
                   className="group flex flex-col overflow-hidden rounded-2xl border-border/70 bg-card transition duration-200 hover:border-primary/40 hover:shadow-xl"
                 >
-                  {/* Thumbnail */}
+
                   <EventThumbnail
                     src={event.thumbnail}
                     alt={event.title}
@@ -326,7 +326,7 @@ export default function JoinedEvents() {
                     toneClass={toneClass}
                   />
 
-                  {/* Status ribbon */}
+
                   <div className="flex items-center justify-between px-5 pt-4">
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold ${
@@ -343,7 +343,7 @@ export default function JoinedEvents() {
                     </span>
                   </div>
 
-                  {/* Body */}
+
                   <div className="flex flex-1 flex-col px-5 pb-5 pt-3">
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1 font-medium text-foreground/90">
@@ -392,7 +392,7 @@ export default function JoinedEvents() {
                       )}
                     </div>
 
-                    {/* Footer action */}
+
                     <div className="mt-auto pt-4">
                       <Link
                         href={`/view/${eventId}`}

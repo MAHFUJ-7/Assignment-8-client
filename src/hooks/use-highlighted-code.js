@@ -3,7 +3,7 @@ import * as React from "react"
 import { loadHighlighter } from "@/lib/highlighter"
 
 export function useHighlightedCode(value, language) {
-  // A trailing newline would render as an extra empty line.
+
   const code = value.endsWith("\n") ? value.slice(0, -1) : value
   const [loaded, setLoaded] = React.useState(null)
   const highlighter = loaded?.language === language ? loaded.highlighter : null
@@ -24,8 +24,8 @@ export function useHighlightedCode(value, language) {
     }
   }, [language])
 
-  // The complete lines, highlighted. While the code streams, only the new
-  // lines are tokenized, starting from the grammar state of the last one.
+
+
   const [done, setDone] = React.useState({ highlighter: null, text: "", lines: [] })
 
   let next = done
@@ -54,7 +54,7 @@ export function useHighlightedCode(value, language) {
     setDone(next)
   }
 
-  // The last line is still being written, so it is tokenized on every render.
+
   const tail = code.slice(end)
 
   return React.useMemo(() => {

@@ -42,13 +42,13 @@ function EventMeta({ icon, children }) {
   );
 }
 
-/* Single recent-event card (mirrors the Browse Events design language) */
+
 function RecentCard({ event }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10">
       <div className="relative aspect-video w-full overflow-hidden bg-muted/70">
         {event.thumbnail ? (
-          // eslint-disable-next-line @next/next/no-img-element
+
           <img
             src={event.thumbnail}
             alt={event.title || "Event cover"}
@@ -124,10 +124,10 @@ function SkeletonCard() {
   );
 }
 
-/**
- * "Recent Upcoming Events" - 6 soonest future events straight from MongoDB
- * (server route /recent-events uses .sort(date).limit(6)).
- */
+
+
+
+
 export default function RecentEvents() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
