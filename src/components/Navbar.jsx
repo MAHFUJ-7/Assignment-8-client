@@ -96,18 +96,19 @@ export default function Navbar() {
           </button>
 
           {user ? (
-            <Popover>
-              <PopoverTrigger className="flex h-10 items-center gap-2 rounded-full border border-emerald-900/10 bg-white/75 py-1 pl-1 pr-3 transition hover:border-emerald-400/50 hover:bg-emerald-50 dark:border-white/[0.1] dark:bg-white/[0.05] dark:hover:bg-white/[0.09]">
-                <Avatar className="size-8 ring-2 ring-emerald-500/20">
-                  {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
-                  <AvatarFallback className="bg-emerald-100 text-[13px] font-bold text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300">
-                    {(user.name ?? "U").charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden max-w-24 truncate text-[13px] font-bold text-slate-700 dark:text-white md:block">
-                  {user.name?.split(" ")[0] ?? "Account"}
-                </span>
-              </PopoverTrigger>
+            <>
+              <Popover>
+                <PopoverTrigger className="flex h-10 items-center gap-2 rounded-full border border-emerald-900/10 bg-white/75 py-1 pl-1 pr-3 transition hover:border-emerald-400/50 hover:bg-emerald-50 dark:border-white/[0.1] dark:bg-white/[0.05] dark:hover:bg-white/[0.09]">
+                  <Avatar className="size-8 ring-2 ring-emerald-500/20">
+                    {user.image ? <AvatarImage src={user.image} alt={user.name} /> : null}
+                    <AvatarFallback className="bg-emerald-100 text-[13px] font-bold text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300">
+                      {(user.name ?? "U").charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden max-w-24 truncate text-[13px] font-bold text-slate-700 dark:text-white md:block">
+                    {user.name?.split(" ")[0] ?? "Account"}
+                  </span>
+                </PopoverTrigger>
               <PopoverContent align="end" className="w-64 overflow-hidden rounded-2xl border-emerald-900/10 p-0 shadow-xl dark:border-white/[0.1]">
                 <PopoverHeader className="border-b border-emerald-900/10 bg-emerald-50/70 px-4 py-3 dark:border-white/[0.08] dark:bg-emerald-400/[0.06]">
                   <PopoverTitle className="text-[14px] font-bold text-foreground">{user.name}</PopoverTitle>
@@ -127,7 +128,15 @@ export default function Navbar() {
                   </button>
                 </div>
               </PopoverContent>
-            </Popover>
+              </Popover>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="hidden h-10 items-center rounded-full border border-red-500/20 bg-red-50 px-4 text-[13px] font-bold text-red-600 transition hover:border-red-500/40 hover:bg-red-100 sm:flex dark:border-red-400/20 dark:bg-red-400/10 dark:text-red-300 dark:hover:bg-red-400/20"
+              >
+                Logout
+              </button>
+            </>
           ) : (
             <>
               <Link href="/sign-in" className="hidden h-10 items-center rounded-full px-4 text-[13px] font-bold text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-700 dark:text-white/80 dark:hover:bg-white/[0.08] sm:flex">
