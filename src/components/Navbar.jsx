@@ -101,7 +101,7 @@ export default function Navbar() {
                         <CiSettings />Manage Events
                       </Link>
 
-                      <Link href="/create_event" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
+                      <Link href="/joined_events" className="text-xl flex items-center gap-2 text-green-500 hover:text-green-600 mt-2">
                         <CiCircleCheck />Joined Events
                       </Link>
 

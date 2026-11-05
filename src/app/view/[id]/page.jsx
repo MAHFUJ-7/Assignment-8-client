@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "@/lib/auth-client";
+
 import {
   ArrowLeft,
   CalendarDays,
@@ -73,6 +75,12 @@ export default function EventViewPage() {
   const [error, setError] = useState(null);
   const [imageError, setImageError] = useState(false);
 
+  const { data: session } = useSession();
+  const email = session?.user?.email;
+  const joinUrl = `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/join?email=${encodeURIComponent(email ?? "")}`;
+
+
+
   // Single Function: Join & Leave Event State
   const [isJoined, setIsJoined] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -109,31 +117,49 @@ export default function EventViewPage() {
     fetchEvent();
   }, [fetchEvent]);
 
+  /* ───────── Initialize join status so a returning user sees "Leave" ───────── */
+  useEffect(() => {
+    if (!id || !email) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/join?email=${encodeURIComponent(email)}`
+        );
+        const data = await res.json();
+        if (!cancelled) setIsJoined(Boolean(data.joined));
+      } catch {
+        /* ignore — stays unjoined */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [id, email]);
+
   /* ───────── Single Function: Join the Event / Leave the Event ───────── */
   const handleToggleJoin = async () => {
+    if (!email) return router.push("/sign-in");
+
+    const willJoin = !isJoined;
+    setSubmitting(true);
     try {
-      setSubmitting(true);
+      const res = await fetch(joinUrl, { method: willJoin ? "POST" : "DELETE" });
 
-      // TODO: Connect with backend manually:
-    //   if (!isJoined) {
-    //     await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/join`, {
-    //       method: "POST",
-    //       headers: { "Content-Type": "application/json" },
-    //       body: JSON.stringify({ eventId: id, userEmail: session?.user?.email }), 
-    //     });
-    //   } else {
-    //     await fetch(`${process.env.NEXT_PUBLIC_SERVER_BASE_URL}/events/${id}/leave`, {
-    //       method: "DELETE",
-    //     });
-    //   }
+      if (res.status === 409) {
+        // Another tab/device already joined — resync instead of failing.
+        setIsJoined(true);
+        showNotice("You have already joined this event.");
+        return;
+      }
+      if (!res.ok) throw new Error();
 
-      const nextState = !isJoined;
-      setIsJoined(nextState);
-      showNotice(
-        nextState ? "You have joined the event!" : "You have left the event."
-      );
-    } catch (err) {
-      console.error("Error updating participation:", err);
+      setIsJoined(willJoin);
+      // Keep the displayed count in step with the server's $inc.
+      setEvent((prev) => {
+        if (!prev || prev.volunteersNeeded == null) return prev;
+        return { ...prev, volunteersNeeded: prev.volunteersNeeded + (willJoin ? -1 : 1) };
+      });
+      showNotice(willJoin ? "You have joined the event!" : "You have left the event.");
+    } catch {
       showNotice("Could not update participation. Try again.");
     } finally {
       setSubmitting(false);
@@ -153,21 +179,21 @@ export default function EventViewPage() {
 
   const formattedDate = event?.date
     ? new Date(
-        event.date.includes("T") ? event.date : `${event.date}T00:00:00`
-      ).toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      })
+      event.date.includes("T") ? event.date : `${event.date}T00:00:00`
+    ).toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    })
     : "Date to be announced";
 
   const postedDate = event?.createdAt
     ? new Date(event.createdAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })
     : null;
 
   return (
@@ -471,11 +497,10 @@ export default function EventViewPage() {
                   <Button
                     onClick={handleToggleJoin}
                     disabled={submitting}
-                    className={`h-12 w-full gap-2 rounded-2xl text-sm font-bold shadow-md transition-all ${
-                      isJoined
-                        ? "bg-destructive/15 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white"
-                        : "bg-primary text-primary-foreground hover:bg-primary/90"
-                    }`}
+                    className={`h-12 w-full gap-2 rounded-2xl text-sm font-bold shadow-md transition-all ${isJoined
+                      ? "bg-destructive/15 text-destructive border border-destructive/30 hover:bg-destructive hover:text-white"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                      }`}
                   >
                     {submitting ? (
                       <Loader2 className="size-4 animate-spin" />
