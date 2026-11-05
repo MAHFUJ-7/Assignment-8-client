@@ -1,0 +1,81 @@
+<svg width="1200" height="520" viewBox="0 0 1200 520" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">SevaConnect — community service events</title>
+  <desc id="desc">An animated 3D-inspired illustration of people connecting around a community event.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07150E"/>
+      <stop offset="0.5" stop-color="#0B2B1D"/>
+      <stop offset="1" stop-color="#123D31"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6EE7B7"/>
+      <stop offset="1" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FDE68A"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="22" stdDeviation="20" flood-color="#020805" flood-opacity="0.42"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse" patternTransform="skewY(-18)">
+      <path d="M48 0H0V48" stroke="#A7F3D0" stroke-opacity="0.09"/>
+    </pattern>
+    <style>
+      .float { animation: float 5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+      .float-slow { animation: float 7s ease-in-out infinite reverse; transform-box: fill-box; transform-origin: center; }
+      .pulse { animation: pulse 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+      @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-13px) rotate(1.5deg); } }
+      @keyframes pulse { 0%,100% { opacity: .25; transform: scale(.85); } 50% { opacity: .7; transform: scale(1.12); } }
+    </style>
+  </defs>
+
+  <rect width="1200" height="520" rx="28" fill="url(#bg)"/>
+  <circle cx="1020" cy="72" r="170" fill="#34D399" fill-opacity="0.13" filter="url(#glow)" class="pulse"/>
+  <circle cx="130" cy="470" r="160" fill="#F59E0B" fill-opacity="0.09" filter="url(#glow)" class="pulse"/>
+  <path d="M0 370C260 300 380 460 610 382C860 296 1010 360 1200 270V520H0V370Z" fill="url(#grid)"/>
+
+  <g class="float-slow">
+    <rect x="705" y="106" width="330" height="224" rx="24" fill="#F0FDF4" fill-opacity="0.08" stroke="#A7F3D0" stroke-opacity="0.28"/>
+    <rect x="728" y="130" width="284" height="156" rx="16" fill="#041B12" fill-opacity="0.55"/>
+    <circle cx="770" cy="174" r="19" fill="url(#green)"/>
+    <path d="M762 174L768 180L780 166" stroke="#032116" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="806" y="162" width="130" height="9" rx="4.5" fill="#D1FAE5" fill-opacity="0.8"/>
+    <rect x="806" y="181" width="88" height="7" rx="3.5" fill="#A7F3D0" fill-opacity="0.35"/>
+    <rect x="752" y="224" width="214" height="10" rx="5" fill="#6EE7B7" fill-opacity="0.22"/>
+    <rect x="752" y="246" width="174" height="10" rx="5" fill="#6EE7B7" fill-opacity="0.12"/>
+    <circle cx="964" cy="250" r="17" fill="url(#gold)"/>
+    <path d="M957 250H971M964 243V257" stroke="#4A2800" stroke-width="3" stroke-linecap="round"/>
+  </g>
+
+  <g filter="url(#shadow)" class="float">
+    <path d="M238 283L524 208L806 286L514 372L238 283Z" fill="#0A2418" stroke="#6EE7B7" stroke-opacity="0.25"/>
+    <path d="M238 283V355L514 449V372L238 283Z" fill="#0C3A28"/>
+    <path d="M514 372V449L806 358V286L514 372Z" fill="#0B2F21"/>
+    <path d="M315 292L518 239L714 293L510 348L315 292Z" fill="url(#green)" fill-opacity="0.92"/>
+    <path d="M363 292L518 252L668 293L512 333L363 292Z" fill="#052317" fill-opacity="0.55"/>
+    <circle cx="431" cy="284" r="24" fill="url(#gold)"/>
+    <path d="M431 271V297M418 284H444" stroke="#4A2800" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="514" cy="286" r="24" fill="#F0FDFA" fill-opacity="0.92"/>
+    <path d="M503 286L511 294L527 277" stroke="#047857" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="597" cy="286" r="24" fill="#F0FDFA" fill-opacity="0.92"/>
+    <path d="M586 286H608M597 275V297" stroke="#047857" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <g class="float-slow">
+    <circle cx="188" cy="191" r="37" fill="#064E3B" stroke="#6EE7B7" stroke-opacity="0.5" stroke-width="3"/>
+    <circle cx="188" cy="179" r="12" fill="#A7F3D0"/>
+    <path d="M165 220C168 198 208 198 211 220" fill="#6EE7B7"/>
+    <path d="M224 175L260 158" stroke="#FDE68A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M235 151L260 158L247 180" stroke="#FDE68A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <text x="72" y="82" fill="#A7F3D0" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="4">COMMUNITY · SERVICE · IMPACT</text>
+  <text x="72" y="142" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="800">Small acts,</text>
+  <text x="72" y="198" fill="white" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="800">big change.</text>
+  <text x="72" y="236" fill="#FCD34D" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">Serve your city with SevaConnect.</text>
+  <text x="72" y="282" fill="#D1FAE5" fill-opacity="0.72" font-family="Arial, Helvetica, sans-serif" font-size="16">Create, join and track meaningful social-service events.</text>
+</svg>

@@ -58,7 +58,7 @@ function EventThumbnail({ src, alt, type, toneClass }) {
           onError={() => setLoadError(true)}
         />
       ) : (
-        <div className="flex size-full flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-muted/90 to-muted/40 p-4 text-center text-muted-foreground">
+        <div className="flex size-full flex-col items-center justify-center gap-1.5 bg-linear-to-br from-muted/90 to-muted/40 p-4 text-center text-muted-foreground">
           <ImageIcon className="size-8 opacity-40" />
           <span className="text-xs font-semibold text-foreground/80">
             {src ? "Cover unavailable" : "No cover photo"}
@@ -66,7 +66,7 @@ function EventThumbnail({ src, alt, type, toneClass }) {
         </div>
       )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
 
       {type && (
         <span
