@@ -62,12 +62,14 @@ const IMPACT_STATS = [
 ];
 
 export default function SignUpPage() {
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const onSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const data = Object.fromEntries(formData.entries());
-        const passwordValue = String(data.password);
-        const confirmPasswordValue = String(data.confirmPassword);
+        const passwordValue = password;
+        const confirmPasswordValue = confirmPassword;
 
         if (!PASSWORD_RULE.test(passwordValue)) {
             toast.error("Password must be at least 6 characters and include uppercase and lowercase letters.");
@@ -100,10 +102,19 @@ export default function SignUpPage() {
         if (error) toast.error(error.message || "Couldn't sign up with Google. Try again.");
     };
 
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const getInputValue = (value) =>
+        typeof value === "string" ? value : value?.target?.value ?? "";
+
+    const handlePasswordChange = (value) => {
+        setPassword(getInputValue(value));
+    };
+
+    const handleConfirmPasswordChange = (value) => {
+        setConfirmPassword(getInputValue(value));
+    };
 
     return (
         <main className="relative flex-1 overflow-hidden bg-background text-foreground">
@@ -311,7 +322,7 @@ export default function SignUpPage() {
                                     type={showPassword ? "text" : "password"}
                                     autoComplete="new-password"
                                     value={password}
-                                    onChange={setPassword}
+                                    onChange={handlePasswordChange}
                                     validate={validatePassword}
                                 >
                                     <Label className={LABEL}>Password</Label>
@@ -321,7 +332,12 @@ export default function SignUpPage() {
                                             strokeWidth={1.5}
                                             className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-muted-foreground dark:text-white/30"
                                         />
-                                        <Input placeholder="Min. 6 characters, upper & lowercase" className={`${INPUT} pr-10`} />
+                                        <Input
+                                            placeholder="Min. 6 characters, upper & lowercase"
+                                            className={`${INPUT} pr-10`}
+                                            value={password}
+                                            onChange={handlePasswordChange}
+                                        />
                                         <button
                                             type="button"
                                             onClick={() => setShowPassword((v) => !v)}
@@ -344,7 +360,7 @@ export default function SignUpPage() {
                                     type={showConfirmPassword ? "text" : "password"}
                                     autoComplete="new-password"
                                     value={confirmPassword}
-                                    onChange={setConfirmPassword}
+                                    onChange={handleConfirmPasswordChange}
                                     validate={(value) => {
                                         if (value && value !== password) {
                                             return "Passwords don't match.";
@@ -359,7 +375,12 @@ export default function SignUpPage() {
                                             strokeWidth={1.5}
                                             className="pointer-events-none absolute left-3 top-1/2 size-[15px] -translate-y-1/2 text-muted-foreground dark:text-white/30"
                                         />
-                                        <Input placeholder="Re-enter password" className={`${INPUT} pr-10`} />
+                                        <Input
+                                            placeholder="Re-enter password"
+                                            className={`${INPUT} pr-10`}
+                                            value={confirmPassword}
+                                            onChange={handleConfirmPasswordChange}
+                                        />
                                         <button
                                             type="button"
                                             onClick={() => setShowConfirmPassword((v) => !v)}

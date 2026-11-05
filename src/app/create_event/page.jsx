@@ -146,7 +146,7 @@ function SectionTitle({ number, title, description }) {
 export default function CreateEventForm({
   user,
   onSubmit,
-  onCancel,
+  onCancel: cancelEvent,
 }) {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
@@ -156,6 +156,7 @@ export default function CreateEventForm({
       email: session.user.email,
     }
     : null);
+  const onCancel = cancelEvent ?? (() => router.back());
 
   const [values, setValues] = useState(INITIAL_VALUES);
   const [errors, setErrors] = useState({});
