@@ -69,8 +69,8 @@ export default function SignInPage() {
             toast.error(error.message || "Incorrect email or password.");
             return;
         }
-        console.log("Sign-in successful");
 
+        toast.success("Signed in successfully!");
         router.push("/");
         router.refresh();
     };
